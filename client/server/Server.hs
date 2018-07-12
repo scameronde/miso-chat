@@ -69,7 +69,10 @@ instance ToHtml a => ToHtml (Wrapper a) where
   toHtmlRaw = toHtml
 
 app :: FilePath -> Application
-app staticDir = serve (Proxy @API) (staticHandler staticDir :<|> websocketHandler :<|> getTimeHandler :<|> serverHandlers)
+app staticDir = serve (Proxy @API) (staticHandler staticDir :<|> 
+                                    websocketHandler :<|> 
+                                    getTimeHandler :<|> 
+                                    serverHandlers)
 
 websocketHandler :: Connection -> Handler ()
 websocketHandler conn = do
