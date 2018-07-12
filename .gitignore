@@ -1,4 +1,7 @@
 target
 result
 result-*
+.ghc.*
+dist
+dist-newstyle
 
