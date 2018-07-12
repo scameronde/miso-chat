@@ -1,0 +1,6 @@
+packages: *.cabal
+
+package zlib
+  extra-include-dirs: /usr/include 
+  extra-lib-dirs: /usr/lib
+
