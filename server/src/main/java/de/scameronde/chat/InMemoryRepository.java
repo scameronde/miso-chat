@@ -24,18 +24,18 @@ public class InMemoryRepository implements Repository {
     chatRooms.add(chatRoom2);
     logs.put(chatRoom1, "");
     logs.put(chatRoom2, "");
-    participants.add(new Participant("", "Homer"));
-    participants.add(new Participant("", "Marge"));
-    participants.add(new Participant("", "Maggie"));
-    participants.add(new Participant("", "Bart"));
-    participants.add(new Participant("", "Lisa"));
-    participants.add(new Participant("", "Burns"));
-    participants.add(new Participant("", "Smithers"));
-    participants.add(new Participant("", "Ned"));
-    participants.add(new Participant("", "Rod"));
-    participants.add(new Participant("", "Todd"));
-    participants.add(new Participant("", "Leny"));
-    participants.add(new Participant("", "Carl"));
+    addParticipant(new Participant("", "Homer"));
+    addParticipant(new Participant("", "Marge"));
+    addParticipant(new Participant("", "Maggie"));
+    addParticipant(new Participant("", "Bart"));
+    addParticipant(new Participant("", "Lisa"));
+    addParticipant(new Participant("", "Burns"));
+    addParticipant(new Participant("", "Smithers"));
+    addParticipant(new Participant("", "Ned"));
+    addParticipant(new Participant("", "Rod"));
+    addParticipant(new Participant("", "Todd"));
+    addParticipant(new Participant("", "Leny"));
+    addParticipant(new Participant("", "Carl"));
   }
 
   @Override
