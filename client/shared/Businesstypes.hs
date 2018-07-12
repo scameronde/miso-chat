@@ -15,10 +15,13 @@ module Businesstypes
   , ChatMessage(..)
   , ChatMessageLog(..)
   , ChatCommand(..)
+  , Time(..)
+  , Message(..)
   ) where
 
 import Data.Aeson
 import GHC.Generics
+import Data.Time.LocalTime
 import Miso.String
 
 
@@ -70,4 +73,12 @@ data ChatCommand = Register ChatRegistration | NewMessage ChatMessage deriving (
 instance ToJSON ChatCommand
 instance FromJSON ChatCommand
 
+
+data Time = Time ZonedTime (Maybe MisoString) deriving Generic
+instance ToJSON Time
+instance FromJSON Time
+
+newtype Message = Message MisoString deriving (Eq, Show, Generic)
+instance ToJSON Message
+instance FromJSON Message
 

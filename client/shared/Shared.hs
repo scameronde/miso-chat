@@ -21,11 +21,8 @@ module Shared
   , module Businesstypes
   ) where
 
-import Data.Aeson
 import Data.Maybe
 import Data.Proxy
-import Data.Time.LocalTime
-import GHC.Generics
 import Miso
 import Miso.String
 import Servant.API
@@ -36,14 +33,6 @@ import Businesstypes
 
 
 -- BUSINESS TYPES
-
-data Time = Time ZonedTime (Maybe MisoString) deriving Generic
-instance ToJSON Time
-instance FromJSON Time
-
-newtype Message = Message MisoString deriving (Eq, Show, Generic)
-instance ToJSON Message
-instance FromJSON Message
 
 #ifndef __GHCJS__
 data WebSocket action = WebSocket deriving Show
