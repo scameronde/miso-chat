@@ -57,6 +57,12 @@ instance ToHtml a => ToHtml (Wrapper a) where
     doctypehtml_ $ do
       head_ $ do
         meta_ [charset_ "utf-8"]
+        link_ [ rel_ "stylesheet" 
+              , href_ "static/bootstrap/css/bootstrap.css"]
+        link_ [ rel_ "stylesheet" 
+              , href_ "static/chat.css"]
+        script_ [src_ "static/jquery/jquery.js"] ("" :: Text)
+        script_ [src_ "static/bootstrap/js/bootstrap.js"] ("" :: Text)
         script_ [src_ "static/all.js"] ("" :: Text)
       body_ $ do
         toHtml a
