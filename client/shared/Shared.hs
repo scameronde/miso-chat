@@ -18,6 +18,7 @@ module Shared
   , viewHome
   , viewTime
   , getURI
+  , module Businesstypes
   ) where
 
 import Data.Aeson
@@ -31,11 +32,28 @@ import Servant.API
 import Servant.Utils.Links
 import Data.Text (Text)
 
-type GetTimeAPI = "api" :> "time" :> QueryParam "param" Text :> Get '[JSON] Time
+import Businesstypes
+
+
+-- BUSINESS TYPES
 
 data Time = Time ZonedTime (Maybe MisoString) deriving Generic
 instance ToJSON Time
 instance FromJSON Time
+
+newtype Message = Message MisoString deriving (Eq, Show, Generic)
+instance ToJSON Message
+instance FromJSON Message
+
+#ifndef __GHCJS__
+data WebSocket action = WebSocket deriving Show
+#endif
+
+-- REST API
+
+type GetTimeAPI = "api" :> "time" :> QueryParam "param" Text :> Get '[JSON] Time
+
+-- MODELS
 
 data Model = Model
   { modelURI :: URI
@@ -46,9 +64,7 @@ data Model = Model
 initialModel :: URI -> Model
 initialModel u = Model {modelURI = u, modelLastMessage = Nothing, modelTime = Nothing}
 
-#ifndef __GHCJS__
-data WebSocket action = WebSocket deriving Show
-#endif
+-- ACTIONS
 
 data Action
   = NoOp
@@ -59,16 +75,13 @@ data Action
   | HandleWebSocket (WebSocket Message)
   deriving Show
 
-newtype Message = Message MisoString
-  deriving (Eq, Show, Generic)
-instance ToJSON Message
-instance FromJSON Message
+-- VIEWS
 
 viewHome :: Model -> View Action
 viewHome m =
   div_
     []
-    [ h1_ [] [text "Home"]
+    [ h1_ [] [text "Home sweet Home"]
     , span_ [] [text (fromMaybe "No message received" (modelLastMessage m))]
     , button_ [onClick (ChangeURI (getURI @("time" :> View Action)))] ["View Time"]
     ]
@@ -83,8 +96,12 @@ viewTime m =
     , button_ [onClick (ChangeURI (getURI @(View Action)))] ["Go Home"]
     ]
 
+-- ROUTES
+
 type ClientRoutes
    = View Action :<|> ("time" :> View Action)
+
+-- HELPERS
 
 getURI :: forall a. (HasLink a, IsElem a ClientRoutes, MkLink a ~ Link) => URI
 getURI = linkURI (safeLink (Proxy :: Proxy ClientRoutes) (Proxy :: Proxy a))
