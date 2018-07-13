@@ -23,8 +23,8 @@ import Servant.Client.Internal.XhrClient(runClientMOrigin)
 import Login
 import Businesstypes
 
--- UPDATE
 
+-- UPDATE
 
 updateLogin :: LoginAction -> LoginModel -> Effect LoginAction LoginModel
 updateLogin action model =
@@ -42,13 +42,13 @@ updateLogin action model =
         noEff model
       else
         model <# do
-          let chatEnv = ClientEnv { baseUrl = (BaseUrl Http "localhost" 4567 "") }
-          resOrErr <- runClientMOrigin (login (fromMisoString (loginName model))) chatEnv
-          return $ case resOrErr of
-            Left err ->
-              ShowError (ms (show err))
-            Right res ->
-              Login res
+          resOrErr <- login (loginName model)
+          let nextAction = case resOrErr of
+                             Left err ->
+                               ShowError (ms (show err))
+                             Right res ->
+                               Login res
+          return nextAction
 
     -- for external communication
     Login participant ->
@@ -65,8 +65,12 @@ clearErrorIfEmpty name error =
     error
  
 
--- UTILS
+-- REST CLIENT
 
-login :: Client ClientM LoginAPI
-login = client (Proxy @LoginAPI)
+loginREST :: Client ClientM LoginAPI
+loginREST = client (Proxy @LoginAPI)
+
+chatServer = ClientEnv (BaseUrl Http "localhost" 4567 "")
+
+login pn = runClientMOrigin (loginREST (fromMisoString pn)) chatServer
 
