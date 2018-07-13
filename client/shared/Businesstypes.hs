@@ -56,14 +56,14 @@ instance FromJSON ChatRegistration
 
 
 data ChatMessage = ChatMessage
-  { message :: MisoString
+  { chatMessage :: MisoString
   } deriving (Show, Eq, Generic)
 instance ToJSON ChatMessage
 instance FromJSON ChatMessage
 
 
 data ChatMessageLog = ChatMessageLog
-  { messageLog :: MisoString
+  { chatMessageLog :: MisoString
   } deriving (Show, Eq, Generic)
 instance ToJSON ChatMessageLog
 instance FromJSON ChatMessageLog

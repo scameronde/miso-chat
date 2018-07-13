@@ -14,6 +14,7 @@ import Servant.API
 import Servant.Client.Ghcjs
 
 import Shared
+import LoginC
 
 main :: IO ()
 main = do

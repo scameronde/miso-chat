@@ -9,6 +9,8 @@ library
   hs-source-dirs:   shared
 
   exposed-modules:  Shared
+                  , Businesstypes
+                  , Login
 
   build-depends:    base
                   , aeson
@@ -16,8 +18,6 @@ library
                   , servant
                   , text
                   , time
-
-  other-modules:    Businesstypes
 
   ghc-options:      -Wall
 
@@ -52,6 +52,8 @@ executable server
 executable client
   hs-source-dirs:   client
   main-is:          Client.hs
+
+  other-modules:    LoginC
 
   if !impl(ghcjs)
     buildable:      False
