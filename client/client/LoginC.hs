@@ -18,6 +18,7 @@ import Data.Maybe
 import Data.Proxy
 import Servant.API
 import Servant.Client.Ghcjs
+import Servant.Client.Internal.XhrClient(runClientMOrigin)
 
 import Login
 import Businesstypes
@@ -41,7 +42,8 @@ updateLogin action model =
         noEff model
       else
         model <# do
-          resOrErr <- runClientM (login (fromMisoString (loginName model)))
+          let chatEnv = ClientEnv { baseUrl = (BaseUrl Http "localhost" 4567 "") }
+          resOrErr <- runClientMOrigin (login (fromMisoString (loginName model))) chatEnv
           return $ case resOrErr of
             Left err ->
               ShowError (ms (show err))
