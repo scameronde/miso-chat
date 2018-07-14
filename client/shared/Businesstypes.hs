@@ -2,6 +2,7 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeApplications #-}
@@ -74,11 +75,11 @@ instance ToJSON ChatCommand
 instance FromJSON ChatCommand
 
 
-data Time = Time ZonedTime (Maybe MisoString) deriving Generic
+newtype Time = Time ZonedTime deriving (Show, Generic)
 instance ToJSON Time
 instance FromJSON Time
 
-newtype Message = Message MisoString deriving (Eq, Show, Generic)
+newtype Message = Message MisoString deriving (Eq, Show, Generic, Monoid)
 instance ToJSON Message
 instance FromJSON Message
 

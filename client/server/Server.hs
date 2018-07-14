@@ -22,7 +22,11 @@ import           Options.Applicative
 import           Servant
 import           Servant.API.WebSocket
 
-import           Shared
+import qualified Time
+import qualified Counter
+import qualified Home
+import Businesstypes
+
 
 data Opts = Opts
   { optPort :: Int
@@ -45,10 +49,10 @@ main = do
 type API =
        "static" :> Raw
   :<|> "websocket" :> WebSocket
-  :<|> GetTimeAPI
+  :<|> Time.GetTimeAPI
   :<|> ServerRoutes
 
-type ServerRoutes = ToServerRoutes ClientRoutes Wrapper Action
+type ServerRoutes = ToServerRoutes Home.ClientRoutes Wrapper Home.Action
 
 newtype Wrapper a = Wrapper a
 
@@ -74,21 +78,25 @@ app staticDir = serve (Proxy @API) (staticHandler staticDir :<|>
                                     getTimeHandler :<|> 
                                     serverHandlers)
 
+serverHandlers :: Handler (Wrapper (View Home.Action)) :<|> Handler (Wrapper (View Time.Action)) :<|> Handler (Wrapper (View Counter.Action))
+serverHandlers = homeHandler :<|> timeHandler :<|> counterHandler
+  where homeHandler    = pure (Wrapper (Home.view    (Home.initialModel (Home.getURI @(View Home.Action)))))
+        timeHandler    = pure (Wrapper (Time.view    (Time.initialModel)))
+        counterHandler = pure (Wrapper (Counter.view (Counter.initialModel)))
+
+staticHandler :: FilePath -> Tagged Handler Application
+staticHandler staticDir = serveDirectoryWebApp staticDir
+
+
+-- BUSINESS SERVICES
+
 websocketHandler :: Connection -> Handler ()
 websocketHandler conn = do
   liftIO . forM_ [1::Int ..] $ \i -> do
     sendTextData conn (Text.pack (show (show i))) >> threadDelay 1000000
 
-serverHandlers :: Handler (Wrapper (View Action)) :<|> Handler (Wrapper (View Action))
-serverHandlers = homeHandler :<|> timeHandler
-  where homeHandler = pure (Wrapper (viewHome (initialModel (getURI @(View Action)))))
-        timeHandler = pure (Wrapper (viewTime (initialModel (getURI @("time" :> View Action)))))
-
-staticHandler :: FilePath -> Tagged Handler Application
-staticHandler staticDir = serveDirectoryWebApp staticDir
-
-getTimeHandler :: Maybe Text -> Handler Time
-getTimeHandler p = do
+getTimeHandler :: Handler Time
+getTimeHandler = do
   t <- liftIO getZonedTime
-  pure (Time t p)
+  return (Time t)
 
