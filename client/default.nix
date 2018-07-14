@@ -1,3 +1,6 @@
+# { rev ? "bc5f34aed92a04aa7feea0d65d47d676b47118af"
+# , outputSha256 ? "1c6qyj4mflj4rfz701f4ypp1w5i57w2wwsbpxa0hx4jk5rgvyxhl"
+# }:
 { rev ? "fdfe5b028bd4da08f0c8aabf9fb5e143ce96c56f"
 , outputSha256 ? "0x0p418csdmpdfp6v4gl5ahzqhg115bb3cvrz1rb1jc7n4vxhcc8"
 }:
@@ -20,21 +23,27 @@ let
   chatclient-overrides = self: super: {
     chatclient = super.callCabal2nix "chatclient" chatclient-src {};
     http-types = super.callHackage "http-types" "0.11" {};
-    miso = super.callHackage "miso" "0.20.1.0" {};
     resourcet = super.callHackage "resourcet" "1.1.11" {};
     servant = super.callHackage "servant" "0.12.1" {};
     servant-server = super.callHackage "servant-server" "0.12" {};
     conduit = super.callHackage "conduit" "1.2.13.1" {};
+    miso = super.callCabal2nix "miso" (pkgs.fetchFromGitHub {
+      owner = "dmjio";
+      repo = "miso";
+      rev = "c0a3ec5f6309cdff2b732507f6ce9db992da3cd3";
+      sha256 = "15n813j9h8lszg8b0491s2nhpn3k37910h0hggc576rmdk74db5c";
+      }) {};
   };
 
   cabal-hashes = builtins.fetchurl {
-    url = "https://github.com/commercialhaskell/all-cabal-hashes/archive/be1df75f15b7b1b924b9b8ed506cf26fd8c48f88.tar.gz";
-    sha256 = "03b4d6q2g2xkrcvn3768b3qx2fj82gpgwar77rbn6nw3850kxjqh";
+    url = "https://github.com/commercialhaskell/all-cabal-hashes/archive/b894fb11eb8b8fb550ad22fbbac3d782758a9faf.tar.gz";
+    sha256 = "02pgkxa4rljczfcc7hh622hv215r7xl9a3m2kghf0jlcyhwwdikf";
   };
 
   ghcPackages = pkgs.haskell.packages.ghc822.override(old: {
     all-cabal-hashes = cabal-hashes;
     overrides = self: super: chatclient-overrides self super // {
+      base-compat = super.callHackage "base-compat" "0.9.3" {};
       cabal-plan = pkgs.haskell.lib.overrideCabal (
         super.callCabal2nix "cabal-plan" (pkgs.fetchFromGitHub {
           owner = "hvr";
