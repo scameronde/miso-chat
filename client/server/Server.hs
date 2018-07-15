@@ -78,11 +78,9 @@ app staticDir = serve (Proxy @API) (staticHandler staticDir :<|>
                                     getTimeHandler :<|> 
                                     serverHandlers)
 
-serverHandlers :: Handler (Wrapper (View Home.Action)) :<|> Handler (Wrapper (View Time.Action)) :<|> Handler (Wrapper (View Counter.Action))
-serverHandlers = homeHandler :<|> timeHandler :<|> counterHandler
+serverHandlers :: Handler (Wrapper (View Home.Action))
+serverHandlers = homeHandler
   where homeHandler    = pure (Wrapper (Home.view    (Home.initialModel (Home.getURI @(View Home.Action)))))
-        timeHandler    = pure (Wrapper (Time.view    (Time.initialModel)))
-        counterHandler = pure (Wrapper (Counter.view (Counter.initialModel)))
 
 staticHandler :: FilePath -> Tagged Handler Application
 staticHandler staticDir = serveDirectoryWebApp staticDir
