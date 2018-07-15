@@ -17,6 +17,7 @@ library
                   , aeson
                   , miso
                   , servant
+                  , servant-client-ghcjs
                   , text
                   , time
 
@@ -55,7 +56,7 @@ executable server
 
 executable client
   hs-source-dirs:   client
-  main-is:          HomeC.hs
+  main-is:          Client.hs
 
   if !impl(ghcjs)
     buildable:      False

@@ -16,10 +16,10 @@ module Counter
   ( 
     Model
   , Action(Back)
-  , view
+  , Counter.view
   , initialModel
 #ifdef __GHCJS__
-  , update
+  , Counter.update
 #endif
   ) where
 

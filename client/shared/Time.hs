@@ -11,20 +11,22 @@ module Time
   (
     Model
   , Action(Back)
-  , view
+  , Time.view
   , initialModel
 #ifdef __GHCJS__
-  , update
+  , Time.update
 #endif
   , GetTimeAPI
   ) where
 
 import Data.Maybe
 import Data.Proxy
+import Data.Time.Format
 import Miso
 import Miso.String
 import Servant.API
 import Servant.Utils.Links
+import Servant.Client.Ghcjs
 import Data.Text (Text)
 
 import Businesstypes

@@ -11,10 +11,10 @@ module Home
   (
     Model
   , Action
-  , view
+  , Home.view
   , initialModel
 #ifdef __GHCJS__
-  , update
+  , Home.update
   , views
 #endif
   , ClientRoutes
@@ -78,25 +78,25 @@ update action model =
     NoOp ->
       noEff model
 
-    HandleTimeAction TimeAction.Back ->
-      (model { modelTime = Nothing }) <# (ChangeURI (getURI @(View Action)))
+    HandleTimeAction Time.Back ->
+      (model { modelTime = Nothing }) <# (pure (ChangeURI (getURI @(View Action))))
 
-    HandleCounterAction CounterAction.Back ->
-      (model { modelCounter = Nothing }) <# (ChangeURI (getURI @(View Action)))
+    HandleCounterAction Counter.Back ->
+      (model { modelCounter = Nothing }) <# (pure (ChangeURI (getURI @(View Action))))
 
     HandleTimeAction ia ->
-      let (Effect ra rm) = updateTime ia (modelTime model)
-          newModel  = model { modelTime = rm }
-          newAction = HandleTimeAction ra
+      let (Effect rm ra) = Time.update ia (fromMaybe Time.initialModel (modelTime model))
+          newModel  = model { modelTime = Just rm }
+          newAction = fmap (mapSub HandleTimeAction) ra
       in
-        newModel <# newAction 
+        Effect newModel newAction 
 
     HandleCounterAction ia ->
-      let (Effect ra rm) = updateCounter ia (modelCounter model)
-          newModel  = model { modelCounter = rm }
-          newAction = HandleCounterAction ra
+      let (Effect rm ra) = Counter.update ia (fromMaybe Counter.initialModel (modelCounter model))
+          newModel  = model { modelCounter = Just rm }
+          newAction = fmap (mapSub HandleCounterAction) ra
       in
-        newModel <# newAction 
+        Effect newModel newAction 
 
     HandleURI u ->
       noEff (model { modelURI = u })
