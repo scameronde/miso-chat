@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators #-}
-module HomeC
+module Main
   (
      main
   ) where
@@ -31,11 +31,11 @@ main = do
       , initialAction = Home.NoOp
       , events = defaultEvents
       , subs =
-          [ uriSub Home.HandleURI
-          , websocketSub
+          [
+            websocketSub
               (URL "ws://localhost:8080/websocket")
               (Protocols [])
-              Counter.HandleWebSocket
+              (Home.HandleCounterAction . Counter.HandleWebSocket)
           ]
       , mountPoint = Nothing
       }

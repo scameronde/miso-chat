@@ -15,7 +15,7 @@
 module Counter
   ( 
     Model
-  , Action(Back)
+  , Action(Back, HandleWebSocket)
   , Counter.view
   , initialModel
 #ifdef __GHCJS__

@@ -9,8 +9,8 @@
 {-# LANGUAGE TypeOperators #-}
 module Home
   (
-    Model
-  , Action
+    Model(modelURI)
+  , Action(NoOp, HandleCounterAction)
   , Home.view
   , initialModel
 #ifdef __GHCJS__
@@ -50,8 +50,8 @@ initialModel u = Model { modelURI = u, modelTime = Nothing, modelCounter = Nothi
 
 data Action
   = NoOp
-  | ChangeURI URI
-  | HandleURI URI
+  | SwitchToTime
+  | SwitchToCounter
   | HandleTimeAction Time.Action
   | HandleCounterAction Counter.Action
   deriving (Eq, Show)
@@ -61,11 +61,32 @@ data Action
 
 view :: Model -> View Action
 view model =
+  case model of
+    Model {modelURI=_, modelTime=Just tm, modelCounter=Nothing} ->
+      let (View rtaction) = Time.view tm
+      in mapView HandleTimeAction (Time.view tm)
+
+    Model {modelURI=_, modelTime=Nothing, modelCounter=Just cm} ->
+      let (View rcaction) = Counter.view cm
+      in fmap HandleCounterAction (Counter.view cm)
+
+    _ ->
+      viewHome model
+
+mapViewAction :: (a -> b) -> ((a -> c) -> d) -> ((b -> c) -> d)
+mapViewAction converter va = va . ( . converter)
+
+mapView :: (a -> b) -> View a -> View b
+mapView converter (View ra) = View (mapViewAction converter ra) 
+
+
+viewHome :: Model -> View Action
+viewHome model =
   div_
     []
     [ h1_ [] [text "Home sweet Home"]
-    , button_ [onClick (ChangeURI (getURI @("time" :> View Time.Action)))] ["View Time"]
-    , button_ [onClick (ChangeURI (getURI @("counter" :> View Counter.Action)))] ["View Counter"]
+    , button_ [onClick SwitchToTime] ["View Time"]
+    , button_ [onClick SwitchToCounter] ["View Counter"]
     ]
 
 
@@ -78,11 +99,17 @@ update action model =
     NoOp ->
       noEff model
 
+    SwitchToTime ->
+      noEff (model { modelTime = Just Time.initialModel })
+
+    SwitchToCounter ->
+      noEff (model { modelCounter = Just Counter.initialModel })
+
     HandleTimeAction Time.Back ->
-      (model { modelTime = Nothing }) <# (pure (ChangeURI (getURI @(View Action))))
+      noEff (model { modelTime = Nothing })
 
     HandleCounterAction Counter.Back ->
-      (model { modelCounter = Nothing }) <# (pure (ChangeURI (getURI @(View Action))))
+      noEff (model { modelCounter = Nothing })
 
     HandleTimeAction ia ->
       let (Effect rm ra) = Time.update ia (fromMaybe Time.initialModel (modelTime model))
@@ -98,22 +125,16 @@ update action model =
       in
         Effect newModel newAction 
 
-    HandleURI u ->
-      noEff (model { modelURI = u })
 
-    ChangeURI u ->
-      model <# (pushURI u *> return NoOp)
-
-
-views :: (Home.Model -> View Home.Action) :<|> (Time.Model -> View Time.Action) :<|> (Counter.Model -> View Counter.Action)
-views = Home.view :<|> Time.view :<|> Counter.view
+views :: (Home.Model -> View Home.Action)
+views = Home.view
 #endif
 
 
 -- ROUTES
 
 type ClientRoutes
-   = View Home.Action :<|> ("time" :> View Time.Action) :<|> ("counter" :> View Counter.Action)
+   = View Home.Action
 
 
 -- HELPERS
