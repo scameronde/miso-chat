@@ -26,7 +26,9 @@ import Miso
 import Miso.String
 import Servant.API
 import Servant.Utils.Links
+#ifdef __GHCJS__
 import Servant.Client.Ghcjs
+#endif
 import Data.Text (Text)
 
 import Businesstypes

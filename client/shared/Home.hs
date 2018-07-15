@@ -64,7 +64,7 @@ view model =
   case model of
     Model {modelURI=_, modelTime=Just tm, modelCounter=Nothing} ->
       let (View rtaction) = Time.view tm
-      in mapView HandleTimeAction (Time.view tm)
+      in fmap HandleTimeAction (Time.view tm)
 
     Model {modelURI=_, modelTime=Nothing, modelCounter=Just cm} ->
       let (View rcaction) = Counter.view cm
@@ -72,12 +72,6 @@ view model =
 
     _ ->
       viewHome model
-
-mapViewAction :: (a -> b) -> ((a -> c) -> d) -> ((b -> c) -> d)
-mapViewAction converter va = va . ( . converter)
-
-mapView :: (a -> b) -> View a -> View b
-mapView converter (View ra) = View (mapViewAction converter ra) 
 
 
 viewHome :: Model -> View Action
