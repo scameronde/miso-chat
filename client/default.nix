@@ -53,7 +53,7 @@ let
           }) {})
         { editedCabalFile = null; };
     };
-    });
+  });
 
   ghcjsPackages = pkgs.haskell.packages.ghcjs80.override(old: {
     all-cabal-hashes = cabal-hashes;

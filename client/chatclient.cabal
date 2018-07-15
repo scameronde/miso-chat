@@ -13,13 +13,22 @@ library
                   , Counter
                   , Home
 
-  build-depends:    base
+  if impl(ghcjs)
+    build-depends:  base
                   , aeson
                   , miso
                   , servant
                   , servant-client-ghcjs
                   , text
                   , time
+  else
+    build-depends:  base
+                  , aeson
+                  , miso
+                  , servant
+                  , text
+                  , time
+
 
   ghc-options:      -Wall
 
