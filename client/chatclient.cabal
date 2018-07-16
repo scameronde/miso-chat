@@ -13,6 +13,7 @@ library
                   , Counter
                   , Home
                   , Login
+                  , ChatRooms
 
   if impl(ghcjs)
     build-depends:  base
