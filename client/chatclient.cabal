@@ -12,6 +12,7 @@ library
                   , Time
                   , Counter
                   , Home
+                  , Login
 
   if impl(ghcjs)
     build-depends:  base
