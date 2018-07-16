@@ -67,7 +67,9 @@ view m =
   div_
     []
     [ h1_ [] [text "Counter"]
-    , span_ [] [text (fromMaybe "No message received" (modelLastMessage m))]
+    , div_ [] [
+                span_ [] [text (fromMaybe "No message received" (modelLastMessage m))]
+              ]
     , button_ [onClick Back] ["Back"]
     ]
 

@@ -89,35 +89,38 @@ viewHome model =
 #ifdef __GHCJS__
 update :: Action -> Model -> Effect Action Model
 update action model =
-  case action of
-    NoOp ->
+  case (action, model) of
+    (NoOp, _) ->
       noEff model
 
-    SwitchToTime ->
+    (SwitchToTime, _) ->
       noEff (model { modelTime = Just Time.initialModel })
 
-    SwitchToCounter ->
+    (SwitchToCounter, _) ->
       noEff (model { modelCounter = Just Counter.initialModel })
 
-    HandleTimeAction Time.Back ->
+    (HandleTimeAction Time.Back, _) ->
       noEff (model { modelTime = Nothing })
 
-    HandleCounterAction Counter.Back ->
+    (HandleCounterAction Counter.Back, _) ->
       noEff (model { modelCounter = Nothing })
 
-    HandleTimeAction ia ->
-      let (Effect rm ra) = Time.update ia (fromMaybe Time.initialModel (modelTime model))
+    (HandleTimeAction ta, Model {modelURI=_, modelTime=Just tm, modelCounter=Nothing}) ->
+      let (Effect rm ra) = Time.update ta tm
           newModel  = model { modelTime = Just rm }
           newAction = fmap (mapSub HandleTimeAction) ra
       in
         Effect newModel newAction 
 
-    HandleCounterAction ia ->
-      let (Effect rm ra) = Counter.update ia (fromMaybe Counter.initialModel (modelCounter model))
+    (HandleCounterAction ca, Model {modelURI=_, modelTime=Nothing, modelCounter=Just cm}) ->
+      let (Effect rm ra) = Counter.update ca cm
           newModel  = model { modelCounter = Just rm }
           newAction = fmap (mapSub HandleCounterAction) ra
       in
         Effect newModel newAction 
+
+    (_, _) ->
+      noEff model
 
 
 views :: (Home.Model -> View Home.Action)
