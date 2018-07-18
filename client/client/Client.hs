@@ -14,28 +14,23 @@ import Miso.String
 import Servant.API
 import Servant.Client.Ghcjs
 
-import qualified Home
-import qualified Counter
-import qualified Time
-
+import qualified ChatClient
 
 main :: IO ()
 main = do
-  miso $ \currentURI ->
+  startApp
     App
-      { model = Home.initialModel currentURI
-      , view = \m -> case runRoute (Proxy @Home.ClientRoutes) Home.views Home.modelURI m of
-          Left _ -> Home.view m
-          Right v -> v
-      , update = Home.update
-      , initialAction = Home.NoOp
+      { model = ChatClient.initialModel
+      , view = ChatClient.view
+      , update = ChatClient.update
+      , initialAction = ChatClient.NoOp
       , events = defaultEvents
       , subs =
           [
-            websocketSub
-              (URL "ws://localhost:8080/websocket")
-              (Protocols [])
-              (Home.HandleCounterAction . Counter.HandleWebSocket)
+--            websocketSub
+--              (URL "ws://localhost:8080/websocket")
+--              (Protocols [])
+--              (Home.HandleCounterAction . Counter.HandleWebSocket)
           ]
       , mountPoint = Nothing
       }
