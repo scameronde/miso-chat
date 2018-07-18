@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import de.scameronde.chat.businesstypes.ChatRoom;
-import de.scameronde.chat.businesstypes.MessageLog;
+import de.scameronde.chat.businesstypes.ChatMessageLog;
 import de.scameronde.chat.businesstypes.Participant;
 
 public interface Repository {
@@ -18,7 +18,7 @@ public interface Repository {
 
   void deleteChatRoom(ChatRoom chatRoom);
 
-  void addMessage(ChatRoom chatRoom, String message, Participant participant);
+  void addChatMessage(ChatRoom chatRoom, String message, Participant participant);
 
-  MessageLog getMessageLog(ChatRoom chatRoom);
+  ChatMessageLog getChatMessageLog(ChatRoom chatRoom);
 }

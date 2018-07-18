@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import de.scameronde.chat.businesstypes.ChatRoom;
-import de.scameronde.chat.businesstypes.MessageLog;
+import de.scameronde.chat.businesstypes.ChatMessageLog;
 import de.scameronde.chat.businesstypes.Participant;
 
 public class InMemoryRepository implements Repository {
@@ -75,13 +75,13 @@ public class InMemoryRepository implements Repository {
   }
 
   @Override
-  public void addMessage(ChatRoom chatRoom, String message, Participant participant) {
+  public void addChatMessage(ChatRoom chatRoom, String message, Participant participant) {
     logs.merge(chatRoom, message, String::concat);
   }
 
   @Override
-  public MessageLog getMessageLog(ChatRoom chatRoom) {
-    return new MessageLog(logs.get(chatRoom));
+  public ChatMessageLog getChatMessageLog(ChatRoom chatRoom) {
+    return new ChatMessageLog(logs.get(chatRoom));
   }
 
   private void throttle(long millis) {

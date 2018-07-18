@@ -47,4 +47,9 @@ public class ChatRoom {
   public int hashCode() {
     return rid.hashCode();
   }
+
+  @Override
+  public String toString() {
+    return "Id: " + rid + ", title: " + title;
+  }
 }

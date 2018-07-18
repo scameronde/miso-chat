@@ -3,7 +3,7 @@ package de.scameronde.chat.businesstypes;
 public class ChatCommand {
   String command;
   ChatRegistration registration;
-  Message message;
+  ChatMessage message;
 
   public ChatCommand() {
 
@@ -25,11 +25,11 @@ public class ChatCommand {
     this.registration = registration;
   }
 
-  public Message getMessage() {
+  public ChatMessage getChatMessage() {
     return message;
   }
 
-  public void setMessage(Message message) {
+  public void setChatMessage(ChatMessage message) {
     this.message = message;
   }
 }

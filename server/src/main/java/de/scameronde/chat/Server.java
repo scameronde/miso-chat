@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 import de.scameronde.chat.businesstypes.ChatRoom;
-import de.scameronde.chat.businesstypes.MessageLog;
+import de.scameronde.chat.businesstypes.ChatMessageLog;
 import de.scameronde.chat.businesstypes.Participant;
 
 import javaslang.control.Either;
@@ -41,7 +41,7 @@ public class Server {
     get("/chatRoom/:chatRoomId", ((request, response) -> {
       String id = getParameter(request, ":chatRoomId");
       Optional<ChatRoom> chatRoom = findChatRoom(id);
-      Optional<MessageLog> messageLog = chatRoom.map(cr -> repository.getMessageLog(cr));
+      Optional<ChatMessageLog> messageLog = chatRoom.map(cr -> repository.getChatMessageLog(cr));
       Either<Exception, Optional<String>> jsonMessageLog = dataToJson(messageLog);
       return createOptionalResponse(response, jsonMessageLog);
     }));
