@@ -15,6 +15,7 @@ library
                   , Login
                   , ChatRooms
                   , ChatRoom
+                  , Chat
 
   if impl(ghcjs)
     build-depends:  base
