@@ -10,7 +10,7 @@
 module ChatRoom
   (
     Model
-  , Action
+  , Action(GetChatHistory, ReceivedMessage)
   , Field
   , ChatRoom.view
 #ifdef __GHCJS__
@@ -62,9 +62,6 @@ initialModel participant chatRoom =
     , messageLog = ""
     , errorMsg = ""
     }
---        ! [ WebSocketClient.sendRegistration (ChatRegistration participant chatRoom)
---          , RestClient.getChatRoom chatRoom.id SetChatHistory
---          ]
 
 
 -- ACTIONS
@@ -72,12 +69,13 @@ initialModel participant chatRoom =
 data Field = NewMessage
 
 data Action
-    = GetChatHistory BT.Id
+    = GetChatHistory
     | GetChatHistorySuccess MisoString
     | GetChatHistoryError MisoString
     | ChangeField Field MisoString
-    | SendMessage MisoString
+    | SendMessage
     | ReceivedMessage MisoString
+    | NoOp
 
 
 -- VIEWS
@@ -87,7 +85,7 @@ view model =
     div_ [ class_ "row" ]
         [ h2_ [] [ text (BT.title (chatRoom model)) ]
         , textarea_ [ class_ "col-md-12", rows_ "20", style_ $ ("width" =: "100%"), value_ (messageLog model) ] []
-        , form_ [ class_ "form-inline", onSubmit (SendMessage (message model)) ]
+        , form_ [ class_ "form-inline", onSubmit SendMessage ]
             [ input_
                 [ type_ "text"
                 , class_ "form-control"
@@ -108,37 +106,33 @@ update :: Action -> Model -> Effect Action Model
 update msg model =
     case msg of
         ChangeField NewMessage message ->
-          noEff model
---            ( model |> messageLens.set message, Cmd.none )
+          noEff (model {message = message})
 
-        SendMessage message ->
-          noEff model
---            ( model |> messageLens.set "", WebSocketClient.sendMessage (Message message) )
+        SendMessage ->
+          (model {message = ""}) <# do
+            send (BT.NewMessage (BT.ChatMessage (message model)))
+            return NoOp
 
-        ReceivedMessage message ->
-          noEff model
---            ( model |> messageLogLens.set (model.messageLog ++ message), Cmd.none )
+        ReceivedMessage msg ->
+          noEff (model {messageLog = (append (messageLog model) msg)})
 
-        GetChatHistory id ->
-          noEff model
+        GetChatHistory ->
+          model <# do
+            send (BT.Register (BT.ChatRegistration (participant model) (chatRoom model)))
+            resOrErr <- getChatHistory (BT.rid (chatRoom model))
+            case resOrErr of
+              Left err -> return (GetChatHistoryError (ms $ show err))
+              Right (BT.ChatMessageLog hist) -> return (GetChatHistorySuccess hist)
 
         GetChatHistorySuccess messageLog ->
-          noEff model
---            ( model |> messageLogLens.set messageLog.messageLog, Cmd.none )
+          noEff (model {messageLog = messageLog})
 
         GetChatHistoryError err ->
+          noEff (model {errorMsg = err})
+
+        NoOp ->
           noEff model
---            ( model |> errorLens.set (toString error), Cmd.none )
 
-
-initHistory :: Model -> Effect Action Model
-initHistory model =
-  model <# do
-    resOrErr <- getChatHistory (BT.rid (chatRoom model))
-    case resOrErr of
-      Left err -> return (GetChatHistoryError (ms $ show err))
-      Right (BT.ChatMessageLog mlog) -> return (GetChatHistorySuccess mlog)
- 
 
 -- REST-CLIENT
 
@@ -148,8 +142,6 @@ getChatHistoryREST :: Client ClientM GetChatHistoryAPI
 getChatHistoryREST = client (Proxy @GetChatHistoryAPI)
 
 getChatHistory (BT.Id rid) = runClientMOrigin (getChatHistoryREST (show rid)) chatServer
-
-
 
 #endif
 
