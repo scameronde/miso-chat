@@ -14,6 +14,7 @@ module ChatClient
   , ChatClient.view
 #ifdef __GHCJS__
   , ChatClient.update
+  , ChatClient.subscriptions
 #endif
   , ChatClient.initialModel
   ) where
@@ -101,11 +102,16 @@ update msg model =
           in
             Effect newModel newAction
 
-        ( NoOp, _) ->
+        _ ->
           noEff model
 
 
 -- REST-CLIENT
+
+subscriptions :: [ Sub Action ]
+subscriptions = fmap (mapSub HandleChatAction) C.subscriptions
+
+
 #endif
 
 -- UTILS

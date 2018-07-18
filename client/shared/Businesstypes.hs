@@ -71,8 +71,16 @@ instance FromJSON ChatMessageLog
 
 
 data ChatCommand = Register ChatRegistration | NewMessage ChatMessage deriving (Show, Eq, Generic)
-instance ToJSON ChatCommand
-instance FromJSON ChatCommand
+instance ToJSON ChatCommand where
+  toJSON (Register reg) =
+    object [ "command" .= ("register"::String)
+           , "registration" .= (toJSON reg)
+           ]
+
+  toJSON (NewMessage msg) =
+    object [ "command" .= ("message"::String)
+           , "chatMessage" .= (toJSON msg)
+           ]
 
 
 newtype Time = Time ZonedTime deriving (Show, Generic)

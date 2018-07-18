@@ -10,11 +10,12 @@
 module ChatRoom
   (
     Model
-  , Action(GetChatHistory, ReceivedMessage)
+  , Action(GetChatHistory, HandleWebSocket)
   , Field
   , ChatRoom.view
 #ifdef __GHCJS__
   , ChatRoom.update
+  , ChatRoom.subscriptions
 #endif
   , ChatRoom.initialModel
   ) where
@@ -37,10 +38,6 @@ import qualified Businesstypes as BT
 -- REST API
 
 type GetChatHistoryAPI = "chatRoom" :> Capture "rid" String :> Get '[JSON] BT.ChatMessageLog
-
--- subscriptions : Model -> Sub Msg
--- subscriptions model =
---    WebSocket.listen "ws://localhost:4567/chat" ReceivedMessage
 
 
 -- MODELS
@@ -74,7 +71,7 @@ data Action
     | GetChatHistoryError MisoString
     | ChangeField Field MisoString
     | SendMessage
-    | ReceivedMessage MisoString
+    | HandleWebSocket (WebSocket BT.ChatMessage)
     | NoOp
     deriving (Show, Eq)
 
@@ -114,8 +111,13 @@ update msg model =
             send (BT.NewMessage (BT.ChatMessage (message model)))
             return NoOp
 
-        ReceivedMessage msg ->
-          noEff (model {messageLog = (append (messageLog model) msg)})
+        HandleWebSocket (WebSocketMessage msg) ->
+          (model {messageLog = (append (messageLog model) (BT.chatMessage msg))}) <# do
+            putStrLn "Message received"
+            return (NoOp)
+      
+        HandleWebSocket _ ->
+          noEff model
 
         GetChatHistory ->
           model <# do
@@ -144,6 +146,9 @@ getChatHistoryREST = client (Proxy @GetChatHistoryAPI)
 
 getChatHistory (BT.Id rid) = runClientMOrigin (getChatHistoryREST (show rid)) chatServer
 
+subscriptions :: [ Sub Action ]
+subscriptions = [ websocketSub (URL "ws://localhost:4567/chat") (Protocols []) HandleWebSocket ]
+   
 #endif
 
 -- UTILS

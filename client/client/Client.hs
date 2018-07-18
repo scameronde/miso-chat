@@ -25,13 +25,7 @@ main = do
       , update = ChatClient.update
       , initialAction = ChatClient.NoOp
       , events = defaultEvents
-      , subs =
-          [
---            websocketSub
---              (URL "ws://localhost:8080/websocket")
---              (Protocols [])
---              (Home.HandleCounterAction . Counter.HandleWebSocket)
-          ]
+      , subs = ChatClient.subscriptions
       , mountPoint = Nothing
       }
 

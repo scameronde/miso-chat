@@ -14,6 +14,7 @@ module Chat
   , Chat.view
 #ifdef __GHCJS__
   , Chat.update
+  , Chat.subscriptions
 #endif
   , Chat.initialModel
   ) where
@@ -117,6 +118,10 @@ update msg model =
 
 
 -- REST-CLIENT
+
+subscriptions :: [ Sub Action ]
+subscriptions = fmap (mapSub HandleChatRoomAction) CR.subscriptions
+
 #endif
 
 -- UTILS
