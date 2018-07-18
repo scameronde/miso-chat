@@ -22,10 +22,7 @@ import           Options.Applicative
 import           Servant
 import           Servant.API.WebSocket
 
-import qualified Time
-import qualified Counter
-import qualified Home
-import Businesstypes
+import qualified ChatClient
 
 
 data Opts = Opts
@@ -46,55 +43,11 @@ main = do
   putStrLn ("Starting server on port " <> show port)
   run port $ logStdoutDev (app (optStaticDir opts))
 
-type API =
-       "static" :> Raw
-  :<|> "websocket" :> WebSocket
-  :<|> Time.GetTimeAPI
-  :<|> ServerRoutes
-
-type ServerRoutes = ToServerRoutes Home.ClientRoutes Wrapper Home.Action
-
-newtype Wrapper a = Wrapper a
-
-instance ToHtml a => ToHtml (Wrapper a) where
-  toHtml (Wrapper a) =
-    doctypehtml_ $ do
-      head_ $ do
-        meta_ [charset_ "utf-8"]
-        link_ [ rel_ "stylesheet" 
-              , href_ "static/bootstrap/css/bootstrap.css"]
-        link_ [ rel_ "stylesheet" 
-              , href_ "static/chat.css"]
-        script_ [src_ "static/jquery/jquery.js"] ("" :: Text)
-        script_ [src_ "static/bootstrap/js/bootstrap.js"] ("" :: Text)
-        script_ [src_ "static/all.js"] ("" :: Text)
-      body_ $ do
-        toHtml a
-  toHtmlRaw = toHtml
+type API = Raw
 
 app :: FilePath -> Application
-app staticDir = serve (Proxy @API) (staticHandler staticDir :<|> 
-                                    websocketHandler :<|> 
-                                    getTimeHandler :<|> 
-                                    serverHandlers)
-
-serverHandlers :: Handler (Wrapper (View Home.Action))
-serverHandlers = homeHandler
-  where homeHandler    = pure (Wrapper (Home.view    (Home.initialModel (Home.getURI @(View Home.Action)))))
+app staticDir = serve (Proxy @API) (staticHandler staticDir)
 
 staticHandler :: FilePath -> Tagged Handler Application
 staticHandler staticDir = serveDirectoryWebApp staticDir
-
-
--- BUSINESS SERVICES
-
-websocketHandler :: Connection -> Handler ()
-websocketHandler conn = do
-  liftIO . forM_ [1::Int ..] $ \i -> do
-    sendTextData conn (Text.pack (show (show i))) >> threadDelay 1000000
-
-getTimeHandler :: Handler Time
-getTimeHandler = do
-  t <- liftIO getZonedTime
-  return (Time t)
 
