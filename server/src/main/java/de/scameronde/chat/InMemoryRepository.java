@@ -41,7 +41,7 @@ public class InMemoryRepository implements Repository {
   @Override
   public String addParticipant(Participant participant) {
     String id = String.valueOf(idcounter++);
-    participant.setId(id);
+    participant.setPid(id);
     participants.add(participant);
     return id;
   }
@@ -62,7 +62,7 @@ public class InMemoryRepository implements Repository {
   @Override
   public String addChatRoom(ChatRoom chatRoom) {
     String id = String.valueOf(idcounter++);
-    chatRoom.setId(id);
+    chatRoom.setRid(id);
     chatRooms.add(chatRoom);
     logs.put(chatRoom, "");
     return id;

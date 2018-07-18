@@ -93,7 +93,7 @@ public class Server {
   private static Optional<ChatRoom> findChatRoom(String id) {
     return repository.getChatRooms()
                      .stream()
-                     .filter(room -> room.getId().equals(id))
+                     .filter(room -> room.getRid().equals(id))
                      .findFirst();
   }
 
