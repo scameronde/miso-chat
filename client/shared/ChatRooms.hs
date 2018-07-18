@@ -10,7 +10,7 @@
 module ChatRooms
   (
     Model
-  , Action(Selected, Deselected)
+  , Action(Selected, Deselected, GetChatRooms)
   , Field
   , ChatRooms.view
 #ifdef __GHCJS__
@@ -50,6 +50,7 @@ data RemoteRefreshingData e a
   | Updating a
   | Success a
   | Failure e
+  deriving (Show, Eq)
 
 
 data Model = Model
@@ -57,7 +58,7 @@ data Model = Model
   , selectedChatRoomId :: Maybe Id
   , newChatRoomTitle :: MisoString
   , errorMsg :: MisoString
-  }
+  } deriving (Show, Eq)
 
 
 initialModel :: Model
@@ -72,6 +73,7 @@ initialModel =
 -- ACTIONS
 
 data Field = Title
+           deriving (Show, Eq)
 
 data Action
     = Selected ChatRoom
@@ -88,6 +90,7 @@ data Action
     | GetChatRoomsError MisoString
     | GetChatRoomsSuccess [ChatRoom]
     | ShowError MisoString
+    deriving (Show, Eq)
 
 
 -- VIEWS

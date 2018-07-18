@@ -16,6 +16,8 @@ library
                   , ChatRooms
                   , ChatRoom
                   , Chat
+                  , ChatClient
+                  , NavBar
 
   if impl(ghcjs)
     build-depends:  base

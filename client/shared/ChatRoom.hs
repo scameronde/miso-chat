@@ -51,7 +51,7 @@ data Model = Model
     , message :: MisoString
     , messageLog :: MisoString
     , errorMsg :: MisoString
-    }
+    } deriving (Show, Eq)
 
 
 initialModel :: BT.Participant -> BT.ChatRoom -> Model
@@ -66,7 +66,7 @@ initialModel participant chatRoom =
 
 -- ACTIONS
 
-data Field = NewMessage
+data Field = NewMessage deriving (Show, Eq)
 
 data Action
     = GetChatHistory
@@ -76,6 +76,7 @@ data Action
     | SendMessage
     | ReceivedMessage MisoString
     | NoOp
+    deriving (Show, Eq)
 
 
 -- VIEWS

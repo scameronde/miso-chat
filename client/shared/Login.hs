@@ -11,7 +11,7 @@ module Login
   ( 
     API
   , Model
-  , Action
+  , Action(Login)
   , Field
   , Login.view
 #ifdef __GHCJS__
@@ -52,13 +52,14 @@ initialModel = Model { loginName = "", loginError = "" }
 
 -- ACTIONS
 
-data Field = Name
+data Field = Name deriving (Show, Eq)
 
 data Action 
   = Login Participant
   | GetParticipant
   | ChangeField Field MisoString
   | ShowError MisoString
+  deriving (Show, Eq)
 
 
 -- VIEWS

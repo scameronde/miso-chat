@@ -10,7 +10,7 @@
 module Chat
   (
     Model
-  , Action
+  , Action(Init)
   , Chat.view
 #ifdef __GHCJS__
   , Chat.update
@@ -41,7 +41,7 @@ data Model = Model
     { participant :: BT.Participant
     , chatRoomModel :: Maybe CR.Model
     , chatRoomsModel :: CRS.Model
-    }
+    } deriving (Show, Eq)
 
 
 initialModel :: BT.Participant -> Model
@@ -53,6 +53,8 @@ initialModel participant = Model participant Nothing (CRS.initialModel)
 data Action
     = HandleChatRoomsAction CRS.Action
     | HandleChatRoomAction CR.Action
+    | Init
+    deriving (Show, Eq)
 
 
 -- VIEWS
@@ -105,6 +107,13 @@ update msg model =
                   newAction = fmap (mapSub HandleChatRoomAction) ra
               in
                 Effect newModel newAction
+
+        Init ->
+          let (Effect rm ra) = CRS.update CRS.GetChatRooms (chatRoomsModel model)
+              newModel = model {chatRoomsModel = rm}
+              newAction = fmap (mapSub HandleChatRoomsAction) ra
+          in
+            Effect newModel newAction
 
 
 -- REST-CLIENT
