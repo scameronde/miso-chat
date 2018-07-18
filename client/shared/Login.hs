@@ -83,7 +83,7 @@ viewErrorMsg model message =
   if (noError model) then
     div_ [] []
   else
-    div_ [ class_ "alert alert-danger" ] [ text message ]
+    div_ [ class_ "alert alert-danger" ] [ text (append (append message " -> ") (loginError model)) ]
 
 
 -- UPDATE
@@ -106,12 +106,11 @@ update action model =
       else
         model <# do
           resOrErr <- login (loginName model)
-          let nextAction = case resOrErr of
-                             Left err ->
-                               ShowError (ms (show err))
-                             Right res ->
-                               Login res
-          return nextAction
+          case resOrErr of
+            Left err ->
+              return (ShowError (ms (show err)))
+            Right res ->
+              return (Login res)
 
     -- for external communication
     Login participant ->
