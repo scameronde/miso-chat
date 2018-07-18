@@ -39,8 +39,10 @@ public class Server {
 
     // get chat history for a chat room
     get("/chatRoom/:chatRoomId", ((request, response) -> {
+      System.out.println("Getting History for room: " + getParameter(request, ":chatRoomId"));
       String id = getParameter(request, ":chatRoomId");
       Optional<ChatRoom> chatRoom = findChatRoom(id);
+      System.out.println("  Room found: " + chatRoom.isPresent());
       Optional<ChatMessageLog> messageLog = chatRoom.map(cr -> repository.getChatMessageLog(cr));
       Either<Exception, Optional<String>> jsonMessageLog = dataToJson(messageLog);
       return createOptionalResponse(response, jsonMessageLog);
@@ -91,6 +93,8 @@ public class Server {
   }
 
   private static Optional<ChatRoom> findChatRoom(String id) {
+    System.out.println("Find ChatRoom: " + id);
+    repository.getChatRooms().stream().forEach(room -> System.out.println("  room: " + room.getRid()));
     return repository.getChatRooms()
                      .stream()
                      .filter(room -> room.getRid().equals(id))

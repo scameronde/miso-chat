@@ -37,7 +37,7 @@ import qualified Businesstypes as BT
 
 -- REST API
 
-type GetChatHistoryAPI = "chatRoom" :> Capture "rid" String :> Get '[JSON] BT.ChatMessageLog
+type GetChatHistoryAPI = "chatRoom" :> Capture "rid" Int :> Get '[JSON] BT.ChatMessageLog
 
 
 -- MODELS
@@ -122,6 +122,7 @@ update msg model =
         GetChatHistory ->
           model <# do
             send (BT.Register (BT.ChatRegistration (participant model) (chatRoom model)))
+            putStrLn "Getting History"
             resOrErr <- getChatHistory (BT.rid (chatRoom model))
             case resOrErr of
               Left err -> return (GetChatHistoryError (ms $ show err))
@@ -131,7 +132,7 @@ update msg model =
           noEff (model {messageLog = messageLog})
 
         GetChatHistoryError err ->
-          noEff (model {errorMsg = err})
+          noEff (model {messageLog = err})
 
         NoOp ->
           noEff model
@@ -144,7 +145,7 @@ chatServer = ClientEnv (BaseUrl Http "localhost" 4567 "")
 getChatHistoryREST :: Client ClientM GetChatHistoryAPI
 getChatHistoryREST = client (Proxy @GetChatHistoryAPI)
 
-getChatHistory (BT.Id rid) = runClientMOrigin (getChatHistoryREST (show rid)) chatServer
+getChatHistory (BT.Id rid) = runClientMOrigin (getChatHistoryREST (read $ unpack rid)) chatServer
 
 subscriptions :: [ Sub Action ]
 subscriptions = [ websocketSub (URL "ws://localhost:4567/chat") (Protocols []) HandleWebSocket ]

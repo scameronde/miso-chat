@@ -20,22 +20,22 @@ public class InMemoryRepository implements Repository {
   public InMemoryRepository() {
     ChatRoom chatRoom1 = new ChatRoom("1", "Room 1");
     ChatRoom chatRoom2 = new ChatRoom("2", "Room 2");
-    chatRooms.add(chatRoom1);
-    chatRooms.add(chatRoom2);
+    addChatRoom(chatRoom1);
+    addChatRoom(chatRoom2);
     logs.put(chatRoom1, "");
     logs.put(chatRoom2, "");
-    addParticipant(new Participant("", "Homer"));
-    addParticipant(new Participant("", "Marge"));
-    addParticipant(new Participant("", "Maggie"));
-    addParticipant(new Participant("", "Bart"));
-    addParticipant(new Participant("", "Lisa"));
-    addParticipant(new Participant("", "Burns"));
-    addParticipant(new Participant("", "Smithers"));
-    addParticipant(new Participant("", "Ned"));
-    addParticipant(new Participant("", "Rod"));
-    addParticipant(new Participant("", "Todd"));
-    addParticipant(new Participant("", "Leny"));
-    addParticipant(new Participant("", "Carl"));
+    addParticipant(new Participant("1", "Homer"));
+    addParticipant(new Participant("2", "Marge"));
+    addParticipant(new Participant("3", "Maggie"));
+    addParticipant(new Participant("4", "Bart"));
+    addParticipant(new Participant("5", "Lisa"));
+    addParticipant(new Participant("6", "Burns"));
+    addParticipant(new Participant("7", "Smithers"));
+    addParticipant(new Participant("8", "Ned"));
+    addParticipant(new Participant("9", "Rod"));
+    addParticipant(new Participant("10", "Todd"));
+    addParticipant(new Participant("11", "Leny"));
+    addParticipant(new Participant("12", "Carl"));
   }
 
   @Override

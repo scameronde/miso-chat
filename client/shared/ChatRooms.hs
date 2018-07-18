@@ -39,7 +39,7 @@ import Businesstypes
 
 type GetRoomsAPI   = "chatRoom" :> Get '[JSON] [ChatRoom]
 type PostRoomAPI   = "chatRoom" :> ReqBody '[JSON] ChatRoom :> Post '[JSON] Id
-type DeleteRoomAPI = "chatRoom" :> Capture "rid" String :> Delete '[JSON] Id
+type DeleteRoomAPI = "chatRoom" :> Capture "rid" Int :> Delete '[JSON] Id
 
 
 -- MODELS
@@ -233,7 +233,7 @@ update action model =
         -- delete chat room
         DeleteChatRoom id ->
           model <# do
-            resOrErr <- deleteRoom (show id)
+            resOrErr <- deleteRoom id
             case resOrErr of
               Left err -> return (DeleteChatRoomError (ms $ show err))
               Right _  -> return DeleteChatRoomSuccess
@@ -335,7 +335,7 @@ postRoom cr = runClientMOrigin (postRoomREST cr) chatServer
 deleteRoomREST :: Client ClientM DeleteRoomAPI
 deleteRoomREST = client (Proxy @DeleteRoomAPI)
 
-deleteRoom rid = runClientMOrigin (deleteRoomREST rid) chatServer
+deleteRoom (Id rid) = runClientMOrigin (deleteRoomREST (read $ unpack rid)) chatServer
 
 #endif
 
