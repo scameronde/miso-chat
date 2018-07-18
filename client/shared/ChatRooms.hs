@@ -219,6 +219,7 @@ update action model =
                                _          -> Loading
           in
             (model {chatRooms = newChatRooms}) <# do
+              putStrLn "Getting Chat Rooms"
               resOrErr <- getRooms
               case resOrErr of
                 Left err  -> return (GetChatRoomsError (ms $ show err))
@@ -239,7 +240,9 @@ update action model =
               Right _  -> return DeleteChatRoomSuccess
 
         DeleteChatRoomError err ->
-          noEff (model {errorMsg = err})
+          (model {errorMsg = err}) <# do
+            putStrLn "Error deleting ChatRoom"
+            return Deselected
 
         DeleteChatRoomSuccess ->
           model <# return GetChatRooms

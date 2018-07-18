@@ -50,10 +50,11 @@ public class Server {
 
     // delete chat room including history
     delete("/chatRoom/:chatRoomId", ((request, response) -> {
+      System.out.println("Delete room: " + getParameter(request, ":chatRoomId"));
       String id = getParameter(request, ":chatRoomId");
       Optional<ChatRoom> chatRoom = findChatRoom(id);
       chatRoom.ifPresent(cr -> repository.deleteChatRoom(cr));
-      Either<Exception, Optional<String>> result = Either.right(chatRoom.map(x -> ""));
+      Either<Exception, Optional<String>> result = Either.right(chatRoom.map(x -> '"' + id + '"'));
       return createOptionalResponse(response, result);
     }));
 
