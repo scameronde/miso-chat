@@ -1,14 +1,14 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP                 #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
 module Login
-  ( 
+  (
     API
   , Model
   , Action(Login)
@@ -20,17 +20,17 @@ module Login
   , Login.initialModel
   ) where
 
-import Data.Proxy
-import Miso
-import Miso.String
-import Data.Text (Text)
-import Servant.API
+import           Data.Proxy
+import           Data.Text                         (Text)
+import           Miso                              hiding (action_, model)
+import           Miso.String
+import           Servant.API
 #ifdef __GHCJS__
-import Servant.Client.Ghcjs
-import Servant.Client.Internal.XhrClient(runClientMOrigin)
+import           Servant.Client.Ghcjs
+import           Servant.Client.Internal.XhrClient (runClientMOrigin)
 #endif
 
-import qualified Businesstypes as BT
+import qualified Businesstypes                     as BT
 
 
 -- REST API
@@ -41,7 +41,7 @@ type API = "participant" :> Capture "participantName" Text :> Get '[JSON] BT.Par
 -- MODELS
 
 data Model = Model
-  { loginName :: MisoString
+  { loginName  :: MisoString
   , loginError :: MisoString
   } deriving (Show, Eq)
 
@@ -54,7 +54,7 @@ initialModel = Model { loginName = "", loginError = "" }
 
 data Field = Name deriving (Show, Eq)
 
-data Action 
+data Action
   = Login BT.Participant
   | GetParticipant
   | ChangeField Field MisoString
@@ -72,11 +72,11 @@ view model =
                [ div_ [ class_ "form-group" ]
                       [ label_ [ for_ "nameInput" ] [ text "Your name" ]
                       , input_ [ id_ "nameInput", type_ "text", class_ "form-control", onInput (ChangeField Name) ]
-                      ]     
+                      ]
                , button_ [ class_ "btn btn-primary", disabled_ (noName model) ] [ text "OK" ]
                ]
        ]
- 
+
 
 viewErrorMsg :: Model -> MisoString -> View Action
 viewErrorMsg model message =
@@ -97,8 +97,8 @@ update action model =
                     , loginError = clearErrorIfEmpty name (loginError model)
                     })
 
-    ShowError error ->
-      noEff (model { loginError = error })
+    ShowError error_ ->
+      noEff (model { loginError = error_ })
 
     GetParticipant ->
       if (loginName model == "") then
@@ -113,27 +113,27 @@ update action model =
               return (Login res)
 
     -- for external communication
-    Login participant ->
+    Login _ ->
       noEff model
-
-    _ -> noEff model
 
 
 clearErrorIfEmpty :: MisoString -> MisoString -> MisoString
-clearErrorIfEmpty name error =
+clearErrorIfEmpty name error_ =
   if (name == "") then
     ""
   else
-    error
- 
+    error_
+
 
 -- REST CLIENT
 
 loginREST :: Client ClientM API
 loginREST = client (Proxy @API)
 
+chatServer :: ClientEnv
 chatServer = ClientEnv (BaseUrl Http "localhost" 4567 "")
 
+login :: MisoString -> IO (Either ServantError BT.Participant)
 login pn = runClientMOrigin (loginREST (fromMisoString pn)) chatServer
 #endif
 

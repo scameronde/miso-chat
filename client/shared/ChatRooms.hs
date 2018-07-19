@@ -1,12 +1,12 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP                 #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
 module ChatRooms
   (
     Model
@@ -19,21 +19,19 @@ module ChatRooms
   , ChatRooms.initialModel
   ) where
 
-import Control.Concurrent
-import qualified Data.Foldable as F
-import qualified Data.List as L
-import Data.Maybe
-import Data.Proxy
-import Miso
-import Miso.String
-import Data.Text (Text)
-import Servant.API
+import           Control.Concurrent
+import qualified Data.Foldable                     as F
+import qualified Data.List                         as L
+import           Data.Proxy
+import           Miso                              hiding (action_, model)
+import           Miso.String
+import           Servant.API
 #ifdef __GHCJS__
-import Servant.Client.Ghcjs
-import Servant.Client.Internal.XhrClient(runClientMOrigin)
+import           Servant.Client.Ghcjs
+import           Servant.Client.Internal.XhrClient (runClientMOrigin)
 #endif
 
-import Businesstypes
+import           Businesstypes
 
 
 -- REST API
@@ -55,10 +53,10 @@ data RemoteRefreshingData e a
 
 
 data Model = Model
-  { chatRooms :: RemoteRefreshingData MisoString [ChatRoom]
+  { chatRooms          :: RemoteRefreshingData MisoString [ChatRoom]
   , selectedChatRoomId :: Maybe Id
-  , newChatRoomTitle :: MisoString
-  , errorMsg :: MisoString
+  , newChatRoomTitle   :: MisoString
+  , errorMsg           :: MisoString
   } deriving (Show, Eq)
 
 
@@ -90,7 +88,6 @@ data Action
     | GetChatRooms
     | GetChatRoomsError MisoString
     | GetChatRoomsSuccess [ChatRoom]
-    | ShowError MisoString
     deriving (Show, Eq)
 
 
@@ -172,7 +169,7 @@ viewNewChatRoom model =
         [ div_ [ class_ "form-group" ]
                [ label_ [ for_ "titleInput" ] [ text "New Chat Room" ]
                , input_ [ id_ "titleInput", type_ "text", value_ (newChatRoomTitle model), class_ "form-control", onInput (ChangeField Title) ]
-               ]  
+               ]
         , button_
             [ class_ "btn btn-primary"
             , disabled_ ((newChatRoomTitle model) == "")
@@ -254,7 +251,7 @@ update action model =
           noEff model
 
         -- for external communication
-        Selected chatRoom ->
+        Selected _ ->
             noEff model
 
         Deselected ->
@@ -274,7 +271,7 @@ deselectChatRoom model =
 selectChatRoom :: ChatRoom -> Model -> Effect Action Model
 selectChatRoom cr model =
   (model { selectedChatRoomId = Just (rid cr) }) <# return (Selected cr)
-  
+
 
 selectOrDeselectChatRoom :: Id -> Model -> Effect Action Model
 selectOrDeselectChatRoom id model =
@@ -321,29 +318,28 @@ updateChatRoomList crs model =
             (model {chatRooms = newChatRooms, selectedChatRoomId = Nothing}) <# return Deselected
 
 
-deleteChatRoom :: Model -> Effect Action Model
-deleteChatRoom model =
-  noEff model
-
 
 -- REST-CLIENT
 
+chatServer :: ClientEnv
 chatServer = ClientEnv (BaseUrl Http "localhost" 4567 "")
 
 getRoomsREST :: Client ClientM GetRoomsAPI
 getRoomsREST = client (Proxy @GetRoomsAPI)
 
+getRooms :: IO (Either ServantError [ChatRoom])
 getRooms = runClientMOrigin getRoomsREST chatServer
-
 
 postRoomREST :: Client ClientM PostRoomAPI
 postRoomREST = client (Proxy @PostRoomAPI)
 
+postRoom :: ChatRoom -> IO (Either ServantError Id)
 postRoom cr = runClientMOrigin (postRoomREST cr) chatServer
 
 deleteRoomREST :: Client ClientM DeleteRoomAPI
 deleteRoomREST = client (Proxy @DeleteRoomAPI)
 
+deleteRoom :: Id -> IO (Either ServantError Id)
 deleteRoom (Id rid) = runClientMOrigin (deleteRoomREST (read $ unpack rid)) chatServer
 
 #endif

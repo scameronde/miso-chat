@@ -1,12 +1,12 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP                 #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
 module Chat
   (
     Model
@@ -19,34 +19,25 @@ module Chat
   , Chat.initialModel
   ) where
 
-import Data.Proxy
-import Miso
-import Miso.String
-import Data.Text (Text)
-import Servant.API
-#ifdef __GHCJS__
-import Servant.Client.Ghcjs
-import Servant.Client.Internal.XhrClient(runClientMOrigin)
-#endif
+import           Miso          hiding (action_, model)
 
 import qualified Businesstypes as BT
-import qualified ChatRooms as CRS
-import qualified ChatRoom as CR
+import qualified ChatRoom      as CR
+import qualified ChatRooms     as CRS
 
 
--- REST API
 
 -- MODELS
 
 data Model = Model
-    { participant :: BT.Participant
-    , chatRoomModel :: Maybe CR.Model
+    { participant    :: BT.Participant
+    , chatRoomModel  :: Maybe CR.Model
     , chatRoomsModel :: CRS.Model
     } deriving (Show, Eq)
 
 
 initialModel :: BT.Participant -> Model
-initialModel participant = Model participant Nothing (CRS.initialModel)
+initialModel part = Model part Nothing (CRS.initialModel)
 
 
 -- ACTIONS
@@ -64,8 +55,7 @@ view :: Model -> View Action
 view model =
     div_ [ class_ "row" ]
          [ div_ [ class_ "col-md-6" ]
-            [ fmap HandleChatRoomsAction (CRS.view (chatRoomsModel model))
-            ]
+            [ fmap HandleChatRoomsAction (CRS.view (chatRoomsModel model)) ]
         , div_ [ class_ "col-md-6" ]
             [ case (chatRoomModel model) of
                 Just crm ->
@@ -101,7 +91,7 @@ update msg model =
           case (chatRoomModel model) of
             Nothing ->
               noEff model
-          
+
             Just model_ ->
               let (Effect rm ra) = CR.update msg_ model_
                   newModel = model {chatRoomModel = Just rm}

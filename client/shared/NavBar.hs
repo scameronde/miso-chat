@@ -1,35 +1,25 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP                 #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
 module NavBar
   (
     NavBar.viewNavBar
   , NavBar.viewMain
   ) where
 
-import Data.Proxy
-import Miso
-import Miso.String
-import Data.Text (Text)
-import Servant.API
-#ifdef __GHCJS__
-import Servant.Client.Ghcjs
-import Servant.Client.Internal.XhrClient(runClientMOrigin)
-#endif
-
-
+import           Miso hiding (action_, model)
 
 
 -- VIEWS
 
 viewNavBar :: model -> View action
-viewNavBar model =
+viewNavBar _ =
     nav_ [ class_ "navbar navbar-inverse navbar-fixed-top" ]
         [ div_ [ class_ "container" ]
             [ div_ [ class_ "navbar-header" ]
@@ -49,25 +39,10 @@ viewNavBar model =
                         []
                     ]
                 , a_ [ class_ "navbar-brand", href_ "#" ]
-                    [ text "Elm Chat" ]
+                    [ text "Miso Chat" ]
                 ]
             , div_ [ class_ "collapse navbar-collapse", id_ "navbar" ]
                 [ ul_ [ class_ "nav navbar-nav" ] []
-                  {-
-                     [ li [ class "active" ]
-                         [ a [ href "#" ]
-                             [ text "Home" ]
-                         ]
-                     , li []
-                         [ a [ href "#about" ]
-                             [ text "About" ]
-                         ]
-                     , li []
-                         [ a [ href "#contact" ]
-                             [ text "Contact" ]
-                         ]
-                     ]
-                  -}
                 ]
             , text "     "
             ]

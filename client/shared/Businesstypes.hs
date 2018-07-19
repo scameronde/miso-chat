@@ -1,13 +1,13 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE AllowAmbiguousTypes        #-}
+{-# LANGUAGE CPP                        #-}
+{-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
+{-# LANGUAGE TypeApplications           #-}
+{-# LANGUAGE TypeFamilies               #-}
+{-# LANGUAGE TypeOperators              #-}
 module Businesstypes
   ( Id(..)
   , Participant(..)
@@ -20,10 +20,10 @@ module Businesstypes
   , Message(..)
   ) where
 
-import Data.Aeson
-import GHC.Generics
-import Data.Time.LocalTime
-import Miso.String
+import           Data.Aeson
+import           Data.Time.LocalTime
+import           GHC.Generics
+import           Miso.String
 
 
 -- BUSINESS TYPES
@@ -33,7 +33,7 @@ instance ToJSON Id
 instance FromJSON Id
 
 data Participant = Participant
-  { pid :: Id
+  { pid  :: Id
   , name :: MisoString
   } deriving (Show, Eq, Generic)
 instance ToJSON Participant
@@ -41,7 +41,7 @@ instance FromJSON Participant
 
 
 data ChatRoom = ChatRoom
-  { rid :: Id
+  { rid   :: Id
   , title :: MisoString
   } deriving (Show, Eq, Generic)
 instance ToJSON ChatRoom
@@ -50,7 +50,7 @@ instance FromJSON ChatRoom
 
 data ChatRegistration = ChatRegistration
   { participant :: Participant
-  , chatRoom :: ChatRoom
+  , chatRoom    :: ChatRoom
   } deriving (Show, Eq, Generic)
 instance ToJSON ChatRegistration
 instance FromJSON ChatRegistration

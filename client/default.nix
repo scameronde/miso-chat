@@ -47,6 +47,7 @@ let
       butcher = super.callHackage "butcher" "1.3.1.1" {};
       czipwith = super.callHackage "czipwith" "1.0.1.0" {};
       brittany = super.callHackage "brittany" "0.11.0.0" {};
+      stylish-haskell = super.callHackage "stylish-haskell" "0.9.2.0" {};
       cabal-plan = pkgs.haskell.lib.overrideCabal (
         super.callCabal2nix "cabal-plan" (pkgs.fetchFromGitHub {
           owner = "hvr";
@@ -81,7 +82,7 @@ in rec
   client = ghcjsPackages.chatclient;
   client-shell = ghcjsPackages.shellFor {
     packages = p: [p.chatclient];
-    buildInputs = [ghcPackages.cabal-plan ghcPackages.brittany];
+    buildInputs = [ghcPackages.cabal-plan ghcPackages.stylish-haskell ghcPackages.brittany];
   };
 }
 

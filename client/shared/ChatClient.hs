@@ -1,12 +1,12 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP                 #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
 module ChatClient
   (
     Model
@@ -19,16 +19,11 @@ module ChatClient
   , ChatClient.initialModel
   ) where
 
-import Miso
-#ifdef __GHCJS__
-#endif
+import           Miso   hiding (action_, model)
 
-import qualified Chat as C
-import qualified Login as L
+import qualified Chat   as C
+import qualified Login  as L
 import qualified NavBar as NB
-
-
--- REST API
 
 -- MODELS
 

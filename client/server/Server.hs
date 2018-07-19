@@ -1,32 +1,20 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeApplications  #-}
+{-# LANGUAGE TypeOperators     #-}
 module Main
   ( main
   ) where
 
-import           Control.Concurrent
-import           Control.Monad
-import           Control.Monad.IO.Class
 import           Data.Monoid
-import qualified Data.Text as Text
-import           Data.Text (Text)
-import           Data.Time.LocalTime
-import           Lucid
-import           Miso (View, ToServerRoutes)
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Middleware.RequestLogger
-import           Network.WebSockets
 import           Options.Applicative
 import           Servant
-import           Servant.API.WebSocket
-
-import qualified ChatClient
 
 
 data Opts = Opts
-  { optPort :: Int
+  { optPort      :: Int
   , optStaticDir :: FilePath
   } deriving (Show, Eq)
 
