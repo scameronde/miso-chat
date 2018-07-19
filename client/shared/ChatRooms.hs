@@ -105,27 +105,31 @@ view model =
 viewChatRooms :: Model -> View Action
 viewChatRooms model =
     let
-        ( txt::String, list, selection ) =
-            case (chatRooms model) of
-                NotAsked ->
-                    ( "not asked", [], Nothing )
-
-                Loading ->
-                    ( "loading ...", [], Nothing )
-
-                Updating a ->
-                    ( "updating ...", a, selectedChatRoomId model )
-
-                Success a ->
-                    ( "OK", a, selectedChatRoomId model )
-
-                Failure e ->
-                    ( "Error: " ++ (unpack e), [], Nothing )
+        ( txt::String, list, selection ) = fetchState model
     in
         div_ []
             [ div_ [ class_ "info" ] [ text (pack txt) ]
             , viewChatRoomList list selection
             ]
+
+
+fetchState :: Model -> (String, [ChatRoom], Maybe Id)
+fetchState model =
+    case (chatRooms model) of
+        NotAsked ->
+            ( "not asked", [], Nothing )
+
+        Loading ->
+            ( "loading ...", [], Nothing )
+
+        Updating a ->
+            ( "updating ...", a, selectedChatRoomId model )
+
+        Success a ->
+            ( "OK", a, selectedChatRoomId model )
+
+        Failure e ->
+            ( "Error: " ++ (unpack e), [], Nothing )
 
 
 viewChatRoomList :: [ChatRoom] -> Maybe Id -> View Action
@@ -139,18 +143,19 @@ viewChatRoomList chatRooms selection =
             ]
         , tbody_ []
             (
-                    (\chatRoom ->
-                        tr_ [ class_ (rowClass chatRoom selection) ]
-                            [ td_ [ onClick (SelectChatRoom (rid chatRoom)) ] [ text (title chatRoom) ]
-                            , td_ []
-                                [ button_
-                                    [ class_ "btn btn-danger btn-xs"
-                                    , onClick (DeleteChatRoom (rid chatRoom))
-                                    ]
-                                    [ text "X" ]
+                (\chatRoom ->
+                    tr_ [ class_ (rowClass chatRoom selection) ]
+                        [ td_ [ onClick (SelectChatRoom (rid chatRoom)) ]
+                            [ text (title chatRoom) ]
+                        , td_ []
+                            [ button_
+                                [ class_ "btn btn-danger btn-xs"
+                                , onClick (DeleteChatRoom (rid chatRoom))
                                 ]
+                                [ text "X" ]
                             ]
-                    ) <$> chatRooms
+                        ]
+                ) <$> chatRooms
             )
         ]
 

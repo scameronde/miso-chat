@@ -1,12 +1,12 @@
-{-# LANGUAGE CPP #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE CPP                 #-}
+{-# LANGUAGE DataKinds           #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE TypeApplications    #-}
+{-# LANGUAGE TypeFamilies        #-}
+{-# LANGUAGE TypeOperators       #-}
 module ChatRoom
   (
     Model
@@ -20,17 +20,16 @@ module ChatRoom
   , ChatRoom.initialModel
   ) where
 
-import Data.Proxy
-import Miso
-import Miso.String
-import Data.Text (Text)
-import Servant.API
+import           Data.Proxy
+import           Miso                              hiding (action_, model)
+import           Miso.String
+import           Servant.API
 #ifdef __GHCJS__
-import Servant.Client.Ghcjs
-import Servant.Client.Internal.XhrClient(runClientMOrigin)
+import           Servant.Client.Ghcjs
+import           Servant.Client.Internal.XhrClient (runClientMOrigin)
 #endif
 
-import qualified Businesstypes as BT
+import qualified Businesstypes                     as BT
 
 
 
@@ -44,10 +43,10 @@ type GetChatHistoryAPI = "chatRoom" :> Capture "rid" Int :> Get '[JSON] BT.ChatM
 
 data Model = Model
     { participant :: BT.Participant
-    , chatRoom :: BT.ChatRoom
-    , message :: MisoString
-    , messageLog :: MisoString
-    , errorMsg :: MisoString
+    , chatRoom    :: BT.ChatRoom
+    , message     :: MisoString
+    , messageLog  :: MisoString
+    , errorMsg    :: MisoString
     } deriving (Show, Eq)
 
 
@@ -115,7 +114,7 @@ update msg model =
           (model {messageLog = (append (messageLog model) (BT.chatMessage msg))}) <# do
             putStrLn "Message received"
             return (NoOp)
-      
+
         HandleWebSocket _ ->
           noEff model
 
@@ -140,16 +139,18 @@ update msg model =
 
 -- REST-CLIENT
 
+chatServer :: ClientEnv
 chatServer = ClientEnv (BaseUrl Http "localhost" 4567 "")
 
 getChatHistoryREST :: Client ClientM GetChatHistoryAPI
 getChatHistoryREST = client (Proxy @GetChatHistoryAPI)
 
+getChatHistory :: BT.Id -> IO (Either ServantError BT.ChatMessageLog)
 getChatHistory (BT.Id rid) = runClientMOrigin (getChatHistoryREST (read $ unpack rid)) chatServer
 
 subscriptions :: [ Sub Action ]
 subscriptions = [ websocketSub (URL "ws://localhost:4567/chat") (Protocols []) HandleWebSocket ]
-   
+
 #endif
 
 -- UTILS
