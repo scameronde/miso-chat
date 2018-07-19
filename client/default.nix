@@ -44,6 +44,9 @@ let
     all-cabal-hashes = cabal-hashes;
     overrides = self: super: chatclient-overrides self super // {
       base-compat = super.callHackage "base-compat" "0.9.3" {};
+      butcher = super.callHackage "butcher" "1.3.1.1" {};
+      czipwith = super.callHackage "czipwith" "1.0.1.0" {};
+      brittany = super.callHackage "brittany" "0.11.0.0" {};
       cabal-plan = pkgs.haskell.lib.overrideCabal (
         super.callCabal2nix "cabal-plan" (pkgs.fetchFromGitHub {
           owner = "hvr";
@@ -72,12 +75,13 @@ in rec
   server = pkgs.haskell.lib.justStaticExecutables ghcPackages.chatclient;
   server-shell = ghcPackages.shellFor {
     packages = p: [p.chatclient];
+    buildInputs = [ghcPackages.cabal-plan ghcPackages.brittany];
   };
 
   client = ghcjsPackages.chatclient;
   client-shell = ghcjsPackages.shellFor {
     packages = p: [p.chatclient];
-    buildInputs = [ghcPackages.cabal-plan];
+    buildInputs = [ghcPackages.cabal-plan ghcPackages.brittany];
   };
 }
 
