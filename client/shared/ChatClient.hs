@@ -19,17 +19,10 @@ module ChatClient
   , ChatClient.initialModel
   ) where
 
-import Data.Proxy
 import Miso
-import Miso.String
-import Data.Text (Text)
-import Servant.API
 #ifdef __GHCJS__
-import Servant.Client.Ghcjs
-import Servant.Client.Internal.XhrClient(runClientMOrigin)
 #endif
 
-import qualified Businesstypes as BT
 import qualified Chat as C
 import qualified Login as L
 import qualified NavBar as NB
@@ -82,21 +75,21 @@ view model =
 -- UPDATE
 
 update :: Action -> Model -> Effect Action Model
-update msg model =
-    case ( msg, model ) of
-        ( HandleLoginAction (L.Login participant), LoginModel model_ ) ->
+update action model =
+    case ( action, model ) of
+        ( HandleLoginAction (L.Login participant), LoginModel _ ) ->
           (ChatModel (C.initialModel participant)) <# do
             return (HandleChatAction C.Init)
 
-        ( HandleLoginAction msg_, LoginModel model_ ) ->
-          let (Effect rm ra) = L.update msg_ model_
+        ( HandleLoginAction action_, LoginModel model_ ) ->
+          let (Effect rm ra) = L.update action_ model_
               newModel = LoginModel rm
               newAction = fmap (mapSub HandleLoginAction) ra
           in
             Effect newModel newAction
 
-        ( HandleChatAction msg_, ChatModel model_ ) ->
-          let (Effect rm ra) = C.update msg_ model_
+        ( HandleChatAction action_, ChatModel model_ ) ->
+          let (Effect rm ra) = C.update action_ model_
               newModel = ChatModel rm
               newAction = fmap (mapSub HandleChatAction) ra
           in

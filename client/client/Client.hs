@@ -6,13 +6,7 @@ module Main
      main
   ) where
 
-import Data.Maybe
-import Data.Proxy
-import Data.Time.Format
 import Miso
-import Miso.String
-import Servant.API
-import Servant.Client.Ghcjs
 
 import qualified ChatClient
 

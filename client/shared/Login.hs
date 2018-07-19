@@ -30,12 +30,12 @@ import Servant.Client.Ghcjs
 import Servant.Client.Internal.XhrClient(runClientMOrigin)
 #endif
 
-import Businesstypes
+import qualified Businesstypes as BT
 
 
 -- REST API
 
-type API = "participant" :> Capture "participantName" Text :> Get '[JSON] Participant
+type API = "participant" :> Capture "participantName" Text :> Get '[JSON] BT.Participant
 
 
 -- MODELS
@@ -55,7 +55,7 @@ initialModel = Model { loginName = "", loginError = "" }
 data Field = Name deriving (Show, Eq)
 
 data Action 
-  = Login Participant
+  = Login BT.Participant
   | GetParticipant
   | ChangeField Field MisoString
   | ShowError MisoString
@@ -69,12 +69,12 @@ view model =
   div_ []
        [ viewErrorMsg model "Wrong Credentials!"
        , form_ [ onSubmit GetParticipant ]
-           [ div_ [ class_ "form-group" ]
-               [ label_ [ for_ "nameInput" ] [ text "Your name" ]
-               , input_ [ id_ "nameInput", type_ "text", class_ "form-control", onInput (ChangeField Name) ]
+               [ div_ [ class_ "form-group" ]
+                      [ label_ [ for_ "nameInput" ] [ text "Your name" ]
+                      , input_ [ id_ "nameInput", type_ "text", class_ "form-control", onInput (ChangeField Name) ]
+                      ]     
+               , button_ [ class_ "btn btn-primary", disabled_ (noName model) ] [ text "OK" ]
                ]
-           , button_ [ class_ "btn btn-primary", disabled_ (noName model) ] [ text "OK" ]
-           ]
        ]
  
 

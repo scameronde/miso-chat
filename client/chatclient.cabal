@@ -9,9 +9,6 @@ library
   hs-source-dirs:   shared
 
   exposed-modules:  Businesstypes
-                  , Time
-                  , Counter
-                  , Home
                   , Login
                   , ChatRooms
                   , ChatRoom
