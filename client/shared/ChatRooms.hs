@@ -19,6 +19,7 @@ module ChatRooms
   , ChatRooms.initialModel
   ) where
 
+import Control.Concurrent
 import qualified Data.Foldable as F
 import qualified Data.List as L
 import Data.Maybe
@@ -209,7 +210,7 @@ update action model =
           noEff (model {errorMsg = err})
 
         PostChatRoomSuccess ->
-          (model { errorMsg = "", selectedChatRoomId = Nothing, newChatRoomTitle = "" }) <# return GetChatRooms
+          noEff (model { errorMsg = "", selectedChatRoomId = Nothing, newChatRoomTitle = "" })
 
         -- get available chat rooms
         GetChatRooms ->
@@ -218,12 +219,17 @@ update action model =
                                Updating a -> Updating a
                                _          -> Loading
           in
-            (model {chatRooms = newChatRooms}) <# do
-              putStrLn "Getting Chat Rooms"
-              resOrErr <- getRooms
-              case resOrErr of
-                Left err  -> return (GetChatRoomsError (ms $ show err))
-                Right crs -> return (GetChatRoomsSuccess crs)
+            batchEff (model {chatRooms = newChatRooms})
+                     [ do
+                         putStrLn "Getting Chat Rooms"
+                         resOrErr <- getRooms
+                         case resOrErr of
+                           Left err  -> return (GetChatRoomsError (ms $ show err))
+                           Right crs -> return (GetChatRoomsSuccess crs)
+                     , do
+                         threadDelay 1000000
+                         return GetChatRooms
+                     ]
 
         GetChatRoomsError err ->
           (model {errorMsg = err, chatRooms = Failure err, selectedChatRoomId = Nothing}) <# return Deselected
@@ -245,7 +251,7 @@ update action model =
             return Deselected
 
         DeleteChatRoomSuccess ->
-          model <# return GetChatRooms
+          noEff model
 
         -- for external communication
         Selected chatRoom ->
