@@ -26,13 +26,7 @@ library
                   , text
                   , time
   else
-    build-depends:  base
-                  , aeson
-                  , miso
-                  , servant
-                  , text
-                  , time
-
+    buildable:      False
 
   ghc-options:      -Wall
 
@@ -48,7 +42,6 @@ executable server
   else
     build-depends:  base
                   , base-compat
-                  , chatclient
                   , aeson
                   , lucid
                   , miso

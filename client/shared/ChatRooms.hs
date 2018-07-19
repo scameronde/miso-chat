@@ -13,9 +13,7 @@ module ChatRooms
   , Action(Selected, Deselected, GetChatRooms)
   , Field
   , ChatRooms.view
-#ifdef __GHCJS__
   , ChatRooms.update
-#endif
   , ChatRooms.initialModel
   ) where
 
@@ -170,7 +168,6 @@ viewNewChatRoom model =
         ]
 
 
-#ifdef __GHCJS__
 -- UPDATE
 
 update :: Action -> Model -> Effect Action Model
@@ -309,9 +306,4 @@ updateChatRoomList crs model =
           Nothing ->
             (model {chatRooms = newChatRooms, selectedChatRoomId = Nothing}) <# return Deselected
 
-
-#endif
-
-
--- UTILS
 

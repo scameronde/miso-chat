@@ -12,10 +12,8 @@ module Chat
     Model
   , Action(Init)
   , Chat.view
-#ifdef __GHCJS__
   , Chat.update
   , Chat.subscriptions
-#endif
   , Chat.initialModel
   ) where
 
@@ -67,7 +65,6 @@ view model =
         ]
 
 
-#ifdef __GHCJS__
 -- UPDATE
 
 update :: Action -> Model -> Effect Action Model
@@ -111,8 +108,4 @@ update msg model =
 
 subscriptions :: [ Sub Action ]
 subscriptions = fmap (mapSub HandleChatRoomAction) CR.subscriptions
-
-#endif
-
--- UTILS
 

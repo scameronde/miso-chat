@@ -13,9 +13,7 @@ module Login
   , Action(Login)
   , Field
   , Login.view
-#ifdef __GHCJS__
   , Login.update
-#endif
   , Login.initialModel
   ) where
 
@@ -76,7 +74,6 @@ viewErrorMsg model message =
 
 -- UPDATE
 
-#ifdef __GHCJS__
 update :: Action -> Model -> Effect Action Model
 update action model =
   case action of
@@ -111,9 +108,6 @@ clearErrorIfEmpty name error_ =
     ""
   else
     error_
-
-
-#endif
 
 
 -- UTILS

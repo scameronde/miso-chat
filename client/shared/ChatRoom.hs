@@ -13,10 +13,8 @@ module ChatRoom
   , Action(GetChatHistory, HandleWebSocket)
   , Field
   , ChatRoom.view
-#ifdef __GHCJS__
   , ChatRoom.update
   , ChatRoom.subscriptions
-#endif
   , ChatRoom.initialModel
   ) where
 
@@ -84,7 +82,6 @@ view model =
         ]
 
 
-#ifdef __GHCJS__
 -- UPDATE
 
 update :: Action -> Model -> Effect Action Model
@@ -129,8 +126,4 @@ update msg model =
 
 subscriptions :: [ Sub Action ]
 subscriptions = [ websocketSub (URL "ws://localhost:4567/chat") (Protocols []) HandleWebSocket ]
-
-#endif
-
--- UTILS
 

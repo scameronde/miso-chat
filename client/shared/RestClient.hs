@@ -9,23 +9,19 @@
 {-# LANGUAGE TypeOperators       #-}
 module RestClient
   (
-#ifdef __GHCJS__
     getChatHistory
   , getRooms
   , postRoom
   , deleteRoom
   , login
-#endif
   ) where
 
 import           Data.Proxy
 import           Data.Text                         (Text)
 import           Miso.String
 import           Servant.API
-#ifdef __GHCJS__
 import           Servant.Client.Ghcjs
 import           Servant.Client.Internal.XhrClient (runClientMOrigin)
-#endif
 
 import qualified Businesstypes                     as BT
 
@@ -35,7 +31,6 @@ type PostRoomAPI       = "chatRoom" :> ReqBody '[JSON] BT.ChatRoom :> Post '[JSO
 type DeleteRoomAPI     = "chatRoom" :> Capture "rid" Int :> Delete '[JSON] BT.Id
 type LoginAPI          = "participant" :> Capture "participantName" Text :> Get '[JSON] BT.Participant
 
-#ifdef __GHCJS__
 chatServer :: ClientEnv
 chatServer = ClientEnv (BaseUrl Http "localhost" 4567 "")
 
@@ -68,4 +63,3 @@ loginREST = client (Proxy @LoginAPI)
 
 login :: MisoString -> IO (Either ServantError BT.Participant)
 login pn = runClientMOrigin (loginREST (fromMisoString pn)) chatServer
-#endif
