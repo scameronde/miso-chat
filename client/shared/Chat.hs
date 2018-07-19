@@ -107,7 +107,7 @@ update msg model =
             Effect newModel newAction
 
 
--- REST-CLIENT
+-- SUBSCRIPTIONS
 
 subscriptions :: [ Sub Action ]
 subscriptions = fmap (mapSub HandleChatRoomAction) CR.subscriptions

@@ -9,8 +9,7 @@
 {-# LANGUAGE TypeOperators       #-}
 module Login
   (
-    API
-  , Model
+    Model
   , Action(Login)
   , Field
   , Login.view
@@ -20,22 +19,11 @@ module Login
   , Login.initialModel
   ) where
 
-import           Data.Proxy
-import           Data.Text                         (Text)
-import           Miso                              hiding (action_, model)
+import           Miso          hiding (action_, model)
 import           Miso.String
-import           Servant.API
-#ifdef __GHCJS__
-import           Servant.Client.Ghcjs
-import           Servant.Client.Internal.XhrClient (runClientMOrigin)
-#endif
 
-import qualified Businesstypes                     as BT
-
-
--- REST API
-
-type API = "participant" :> Capture "participantName" Text :> Get '[JSON] BT.Participant
+import qualified Businesstypes as BT
+import           RestClient
 
 
 -- MODELS
@@ -125,16 +113,6 @@ clearErrorIfEmpty name error_ =
     error_
 
 
--- REST CLIENT
-
-loginREST :: Client ClientM API
-loginREST = client (Proxy @API)
-
-chatServer :: ClientEnv
-chatServer = ClientEnv (BaseUrl Http "localhost" 4567 "")
-
-login :: MisoString -> IO (Either ServantError BT.Participant)
-login pn = runClientMOrigin (loginREST (fromMisoString pn)) chatServer
 #endif
 
 

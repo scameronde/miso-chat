@@ -94,7 +94,7 @@ update action model =
           noEff model
 
 
--- REST-CLIENT
+-- SUBSCRIPTIONS
 
 subscriptions :: [ Sub Action ]
 subscriptions = fmap (mapSub HandleChatAction) C.subscriptions

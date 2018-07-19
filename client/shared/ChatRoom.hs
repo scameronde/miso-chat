@@ -20,23 +20,11 @@ module ChatRoom
   , ChatRoom.initialModel
   ) where
 
-import           Data.Proxy
-import           Miso                              hiding (action_, model)
+import           Miso          hiding (action_, model)
 import           Miso.String
-import           Servant.API
-#ifdef __GHCJS__
-import           Servant.Client.Ghcjs
-import           Servant.Client.Internal.XhrClient (runClientMOrigin)
-#endif
 
-import qualified Businesstypes                     as BT
-
-
-
-
--- REST API
-
-type GetChatHistoryAPI = "chatRoom" :> Capture "rid" Int :> Get '[JSON] BT.ChatMessageLog
+import qualified Businesstypes as BT
+import           RestClient
 
 
 -- MODELS
@@ -137,16 +125,7 @@ update msg model =
           noEff model
 
 
--- REST-CLIENT
-
-chatServer :: ClientEnv
-chatServer = ClientEnv (BaseUrl Http "localhost" 4567 "")
-
-getChatHistoryREST :: Client ClientM GetChatHistoryAPI
-getChatHistoryREST = client (Proxy @GetChatHistoryAPI)
-
-getChatHistory :: BT.Id -> IO (Either ServantError BT.ChatMessageLog)
-getChatHistory (BT.Id rid) = runClientMOrigin (getChatHistoryREST (read $ unpack rid)) chatServer
+-- SUBSCRIPTIONS
 
 subscriptions :: [ Sub Action ]
 subscriptions = [ websocketSub (URL "ws://localhost:4567/chat") (Protocols []) HandleWebSocket ]

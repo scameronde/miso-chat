@@ -15,6 +15,7 @@ library
                   , Chat
                   , ChatClient
                   , NavBar
+                  , RestClient
 
   if impl(ghcjs)
     build-depends:  base

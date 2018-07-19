@@ -20,26 +20,13 @@ module ChatRooms
   ) where
 
 import           Control.Concurrent
-import qualified Data.Foldable                     as F
-import qualified Data.List                         as L
-import           Data.Proxy
-import           Miso                              hiding (action_, model)
+import qualified Data.Foldable      as F
+import qualified Data.List          as L
+import           Miso               hiding (action_, model)
 import           Miso.String
-import           Servant.API
-#ifdef __GHCJS__
-import           Servant.Client.Ghcjs
-import           Servant.Client.Internal.XhrClient (runClientMOrigin)
-#endif
 
 import           Businesstypes
-
-
--- REST API
-
-type GetRoomsAPI   = "chatRoom" :> Get '[JSON] [ChatRoom]
-type PostRoomAPI   = "chatRoom" :> ReqBody '[JSON] ChatRoom :> Post '[JSON] Id
-type DeleteRoomAPI = "chatRoom" :> Capture "rid" Int :> Delete '[JSON] Id
-
+import           RestClient
 
 -- MODELS
 
@@ -322,30 +309,6 @@ updateChatRoomList crs model =
           Nothing ->
             (model {chatRooms = newChatRooms, selectedChatRoomId = Nothing}) <# return Deselected
 
-
-
--- REST-CLIENT
-
-chatServer :: ClientEnv
-chatServer = ClientEnv (BaseUrl Http "localhost" 4567 "")
-
-getRoomsREST :: Client ClientM GetRoomsAPI
-getRoomsREST = client (Proxy @GetRoomsAPI)
-
-getRooms :: IO (Either ServantError [ChatRoom])
-getRooms = runClientMOrigin getRoomsREST chatServer
-
-postRoomREST :: Client ClientM PostRoomAPI
-postRoomREST = client (Proxy @PostRoomAPI)
-
-postRoom :: ChatRoom -> IO (Either ServantError Id)
-postRoom cr = runClientMOrigin (postRoomREST cr) chatServer
-
-deleteRoomREST :: Client ClientM DeleteRoomAPI
-deleteRoomREST = client (Proxy @DeleteRoomAPI)
-
-deleteRoom :: Id -> IO (Either ServantError Id)
-deleteRoom (Id rid) = runClientMOrigin (deleteRoomREST (read $ unpack rid)) chatServer
 
 #endif
 
