@@ -73,6 +73,7 @@ data Action
     | GetChatRooms
     | GetChatRoomsError MisoString
     | GetChatRoomsSuccess [ChatRoom]
+    | NoOp
     deriving (Show, Eq)
 
 
@@ -238,6 +239,9 @@ update action model =
 
         DeleteChatRoomSuccess ->
           noEff model
+
+        NoOp ->
+            noEff model
 
         -- for external communication
         Selected _ ->
