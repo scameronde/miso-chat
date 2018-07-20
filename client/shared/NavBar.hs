@@ -38,7 +38,7 @@ viewNavBar _ =
                     , span_ [ class_ "icon-bar" ]
                         []
                     ]
-                , a_ [ class_ "navbar-brand", href_ "#" ]
+                , a_ [ class_ "navbar-brand", href_ "" ]
                     [ text "Miso Chat" ]
                 ]
             , div_ [ class_ "collapse navbar-collapse", id_ "navbar" ]
