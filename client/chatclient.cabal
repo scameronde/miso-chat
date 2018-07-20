@@ -55,7 +55,7 @@ executable server
                   , wai-extra
                   , websockets
 
-  ghc-options:      -Wall
+  ghc-options:      -Wall -Werror
 
   default-language: Haskell2010
 
@@ -75,7 +75,7 @@ executable client
                   , servant-client-ghcjs
                   , time
 
-  ghcjs-options:      -Wall
+  ghcjs-options:    -Wall -Werror
 
   default-language: Haskell2010
 

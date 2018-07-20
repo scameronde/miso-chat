@@ -37,9 +37,9 @@ data Model = Model
 
 
 initialModel :: BT.Participant -> BT.ChatRoom -> Model
-initialModel participant chatRoom =
-    Model { participant = participant
-    , chatRoom = chatRoom
+initialModel participant_ chatRoom_ =
+    Model { participant = participant_
+    , chatRoom = chatRoom_
     , message = ""
     , messageLog = ""
     , errorMsg = ""
@@ -87,16 +87,16 @@ view model =
 update :: Action -> Model -> Effect Action Model
 update msg model =
     case msg of
-        ChangeField NewMessage message ->
-          noEff (model {message = message})
+        ChangeField NewMessage message_ ->
+          noEff (model {message = message_})
 
         SendMessage ->
           (model {message = ""}) <# do
             send (BT.NewMessage (BT.ChatMessage (message model)))
             return NoOp
 
-        HandleWebSocket (WebSocketMessage msg) ->
-          (model {messageLog = (append (messageLog model) (BT.chatMessage msg))}) <# do
+        HandleWebSocket (WebSocketMessage msg_) ->
+          (model {messageLog = (append (messageLog model) (BT.chatMessage msg_))}) <# do
             putStrLn "Message received"
             return (NoOp)
 
@@ -112,11 +112,11 @@ update msg model =
               Left err -> return (GetChatHistoryError (ms $ show err))
               Right (BT.ChatMessageLog hist) -> return (GetChatHistorySuccess hist)
 
-        GetChatHistorySuccess messageLog ->
-          noEff (model {messageLog = messageLog})
+        GetChatHistorySuccess messageLog_ ->
+          noEff (model {messageLog = messageLog_})
 
-        GetChatHistoryError err ->
-          noEff (model {messageLog = err})
+        GetChatHistoryError err_ ->
+          noEff (model {messageLog = err_})
 
         NoOp ->
           noEff model
