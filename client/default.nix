@@ -1,16 +1,17 @@
-# { rev ? "bc5f34aed92a04aa7feea0d65d47d676b47118af"
-# , outputSha256 ? "1c6qyj4mflj4rfz701f4ypp1w5i57w2wwsbpxa0hx4jk5rgvyxhl"
-# }:
 { rev ? "fdfe5b028bd4da08f0c8aabf9fb5e143ce96c56f"
 , outputSha256 ? "0x0p418csdmpdfp6v4gl5ahzqhg115bb3cvrz1rb1jc7n4vxhcc8"
 }:
 let
+  # do not load the version of nixpkgs that the users account points to
+  # load the same specific version on all accounts instead
   nixpkgs = builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/${rev}.tar.gz";
     sha256 = outputSha256;
   };
   pkgs = import nixpkgs {};
 
+  # cabal generates some directories and files that confuse nix
+  # ignore them
   chatclient-src = pkgs.lib.cleanSourceWith {
     filter = (path: type:
       let base = baseNameOf (toString path);
@@ -20,13 +21,19 @@ let
     src = pkgs.lib.cleanSource ./.;
   };
 
+  # instead of the versions currated by nixpkgs use these versions instead
   chatclient-overrides = self: super: {
+    # use local source and convert the cabal file to build and get the version
     chatclient = super.callCabal2nix "chatclient" chatclient-src {};
+
+    # use the versions and the versioning scheme from hackage 
     http-types = super.callHackage "http-types" "0.11" {};
     resourcet = super.callHackage "resourcet" "1.1.11" {};
     servant = super.callHackage "servant" "0.12.1" {};
     servant-server = super.callHackage "servant-server" "0.12" {};
     conduit = super.callHackage "conduit" "1.2.13.1" {};
+
+    # use source from github and convert the cabal file to build and get the version
     miso = super.callCabal2nix "miso" (pkgs.fetchFromGitHub {
       owner = "dmjio";
       repo = "miso";
@@ -35,11 +42,14 @@ let
       }) {};
   };
 
+  # to get the newest version of packages when using the function 'callHackage' we can not use a LTS set
+  # of hackage (which nixpgks is based on). We have to provide a newer mapping provided by the hackage guys. 
   cabal-hashes = builtins.fetchurl {
     url = "https://github.com/commercialhaskell/all-cabal-hashes/archive/b894fb11eb8b8fb550ad22fbbac3d782758a9faf.tar.gz";
     sha256 = "02pgkxa4rljczfcc7hh622hv215r7xl9a3m2kghf0jlcyhwwdikf";
   };
 
+  # these are all the packages and tools we need for a GHC based build
   ghcPackages = pkgs.haskell.packages.ghc822.override(old: {
     all-cabal-hashes = cabal-hashes;
     overrides = self: super: chatclient-overrides self super // {
@@ -59,6 +69,7 @@ let
     };
   });
 
+  # these are all the packages and tools we need for a GHCJS based build
   ghcjsPackages = pkgs.haskell.packages.ghcjs80.override(old: {
     all-cabal-hashes = cabal-hashes;
     overrides = self: super: chatclient-overrides self super // {
@@ -71,18 +82,24 @@ let
       servant-client-core = super.callHackage "servant-client-core" "0.12" {};
     };
   });
+
 in rec
 { 
+  # server build
   server = pkgs.haskell.lib.justStaticExecutables ghcPackages.chatclient;
+
+  # sever shell for working with GHC
   server-shell = ghcPackages.shellFor {
     packages = p: [p.chatclient];
-    buildInputs = [ghcPackages.cabal-plan ghcPackages.brittany];
+    buildInputs = [ghcPackages.cabal-plan];
   };
 
+  # client build
   client = ghcjsPackages.chatclient;
+
+  # client shell for working with GHCJS
   client-shell = ghcjsPackages.shellFor {
     packages = p: [p.chatclient];
     buildInputs = [ghcPackages.cabal-plan ghcPackages.stylish-haskell ghcPackages.brittany];
   };
 }
-
