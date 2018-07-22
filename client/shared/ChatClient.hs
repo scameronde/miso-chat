@@ -39,8 +39,8 @@ initialModel = LoginModel L.initialModel
 -- ACTIONS
 
 data Action
-    = HandleLoginAction L.Action
-    | HandleChatAction C.Action
+    = LoginAction L.Action
+    | ChatAction C.Action
     | NoOp
     deriving (Show, Eq)
 
@@ -49,9 +49,9 @@ data Action
 
 viewMainArea :: Model -> View Action
 viewMainArea model = case model of
-  LoginModel model_ -> fmap HandleLoginAction (L.view model_)
+  LoginModel model_ -> fmap LoginAction (L.view model_)
 
-  ChatModel  model_ -> fmap HandleChatAction (C.view model_)
+  ChatModel  model_ -> fmap ChatAction (C.view model_)
 
 
 view :: Model -> View Action
@@ -66,21 +66,15 @@ view model = div_
 
 update :: Action -> Model -> Effect Action Model
 update action model = case (action, model) of
-  (HandleLoginAction (L.Login participant), LoginModel _) ->
+  (LoginAction (L.Login participant), LoginModel _) ->
     (ChatModel (C.initialModel participant)) <# do
-      return (HandleChatAction C.Init)
+      return (ChatAction C.Init)
 
-  (HandleLoginAction action_, LoginModel model_) ->
-    let (Effect rm ra) = L.update action_ model_
-        newModel       = LoginModel rm
-        newAction      = fmap (mapSub HandleLoginAction) ra
-    in  Effect newModel newAction
+  (LoginAction action_, LoginModel model_) ->
+    mapEff L.update action_ model_ LoginModel LoginAction
 
-  (HandleChatAction action_, ChatModel model_) ->
-    let (Effect rm ra) = C.update action_ model_
-        newModel       = ChatModel rm
-        newAction      = fmap (mapSub HandleChatAction) ra
-    in  Effect newModel newAction
+  (ChatAction action_, ChatModel model_) ->
+    mapEff C.update action_ model_ ChatModel ChatAction
 
   _ -> noEff model
 
@@ -88,6 +82,17 @@ update action model = case (action, model) of
 -- SUBSCRIPTIONS
 
 subscriptions :: [Sub Action]
-subscriptions = fmap (mapSub HandleChatAction) C.subscriptions
+subscriptions = fmap (mapSub ChatAction) C.subscriptions
 
-
+mapEff
+  :: (sa -> sm -> Effect sa sm)
+  -> sa
+  -> sm
+  -> (sm -> m)
+  -> (sa -> a)
+  -> Effect a m
+mapEff updater action model modelWrapper actionWrapper =
+  let (Effect rm ra) = updater action model
+      newModel       = modelWrapper rm
+      newAction      = fmap (mapSub actionWrapper) ra
+  in  Effect newModel newAction
