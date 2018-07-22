@@ -1,5 +1,4 @@
 {-# LANGUAGE AllowAmbiguousTypes        #-}
-{-# LANGUAGE CPP                        #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -18,7 +17,8 @@ module Businesstypes
   , ChatCommand(..)
   , Time(..)
   , Message(..)
-  ) where
+  )
+where
 
 import           Data.Aeson
 import           Data.Time.LocalTime

@@ -1,5 +1,4 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE CPP                 #-}
 {-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE OverloadedStrings   #-}
@@ -8,13 +7,13 @@
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
 module RestClient
-  (
-    getChatHistory
+  ( getChatHistory
   , getRooms
   , postRoom
   , deleteRoom
   , login
-  ) where
+  )
+where
 
 import           Data.Proxy
 import           Data.Text                         (Text)
@@ -38,7 +37,8 @@ getChatHistoryREST :: Client ClientM GetChatHistoryAPI
 getChatHistoryREST = client (Proxy @GetChatHistoryAPI)
 
 getChatHistory :: BT.Id -> IO (Either ServantError BT.ChatMessageLog)
-getChatHistory (BT.Id rid) = runClientMOrigin (getChatHistoryREST (read $ unpack rid)) chatServer
+getChatHistory (BT.Id rid) =
+  runClientMOrigin (getChatHistoryREST (read $ unpack rid)) chatServer
 
 getRoomsREST :: Client ClientM GetRoomsAPI
 getRoomsREST = client (Proxy @GetRoomsAPI)
@@ -56,7 +56,8 @@ deleteRoomREST :: Client ClientM DeleteRoomAPI
 deleteRoomREST = client (Proxy @DeleteRoomAPI)
 
 deleteRoom :: BT.Id -> IO (Either ServantError BT.Id)
-deleteRoom (BT.Id rid) = runClientMOrigin (deleteRoomREST (read $ unpack rid)) chatServer
+deleteRoom (BT.Id rid) =
+  runClientMOrigin (deleteRoomREST (read $ unpack rid)) chatServer
 
 loginREST :: Client ClientM LoginAPI
 loginREST = client (Proxy @LoginAPI)

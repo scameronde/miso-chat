@@ -75,7 +75,7 @@ executable client
                   , servant-client-ghcjs
                   , time
 
-  ghcjs-options:    -Wall -Werror
+  ghcjs-options:    -dedupe -Wall -Werror
 
   default-language: Haskell2010
 

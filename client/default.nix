@@ -91,7 +91,7 @@ in rec
   # sever shell for working with GHC
   server-shell = ghcPackages.shellFor {
     packages = p: [p.chatclient];
-    buildInputs = [ghcPackages.cabal-plan];
+    buildInputs = [ghcPackages.cabal-plan ghcPackages.brittany ghcPackages.stylish-haskell];
   };
 
   # client build

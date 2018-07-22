@@ -4,7 +4,8 @@
 {-# LANGUAGE TypeOperators     #-}
 module Main
   ( main
-  ) where
+  )
+where
 
 import           Data.Monoid
 import           Network.Wai.Handler.Warp
@@ -20,9 +21,8 @@ data Opts = Opts
 
 optParser :: Parser Opts
 optParser =
-  Opts
-    <$> option auto (short 'p' <> metavar "PORT" <> value 8080)
-    <*> strOption (short 'd' <> metavar "DIR" <> value "static")
+  Opts <$> option auto (short 'p' <> metavar "PORT" <> value 8080) 
+       <*> strOption(short 'd' <> metavar "DIR" <> value "static")
 
 main :: IO ()
 main = do
