@@ -6,29 +6,17 @@ cabal-version: 1.24
 build-type: Simple
 
 library
-  hs-source-dirs:   shared
+  hs-source-dirs:   library
 
-  exposed-modules:  Businesstypes
-                  , Login
-                  , ChatRooms
-                  , ChatRoom
-                  , Chat
-                  , ChatClient
-                  , NavBar
-                  , RestClient
+  exposed-modules:  Util
 
-  if impl(ghcjs)
-    build-depends:  base
-                  , aeson
-                  , miso
-                  , servant
-                  , servant-client-ghcjs
-                  , text
-                  , time
-  else
+  if !impl(ghcjs)
     buildable:      False
+  else
+    build-depends:  base
 
-  ghc-options:      -Wall
+  ghc-options:      -Wall -Werror
+  ghcjs-options:    -Wall -Werror
 
   default-language: Haskell2010
 
@@ -44,7 +32,6 @@ executable server
                   , base-compat
                   , aeson
                   , lucid
-                  , miso
                   , optparse-applicative
                   , servant
                   , servant-server
@@ -74,8 +61,8 @@ executable client
                   , servant
                   , servant-client-ghcjs
                   , time
+                  , text
 
   ghcjs-options:    -dedupe -Wall -Werror
 
   default-language: Haskell2010
-
