@@ -7,6 +7,7 @@ module Main
   )
 where
 
+import           Data.Monoid
 import           Network.Wai.Handler.Warp
 import           Network.Wai.Middleware.RequestLogger
 import           Options.Applicative
