@@ -42,8 +42,8 @@ initialModel part = Model part Nothing (CRS.initialModel)
 -- ACTIONS
 
 data Action
-    = HandleChatRoomsAction CRS.Action
-    | HandleChatRoomAction CR.Action
+    = ChatRoomsAction CRS.Action
+    | ChatRoomAction CR.Action
     | Init
     deriving (Show, Eq)
 
@@ -54,11 +54,11 @@ view :: Model -> View Action
 view model = div_
   [class_ "row"]
   [ div_ [class_ "col-md-6"]
-         [fmap HandleChatRoomsAction (CRS.view (chatRoomsModel model))]
+         [fmap ChatRoomsAction (CRS.view (chatRoomsModel model))]
   , div_
     [class_ "col-md-6"]
     [ case (chatRoomModel model) of
-        Just crm -> fmap HandleChatRoomAction (CR.view crm)
+        Just crm -> fmap ChatRoomAction (CR.view crm)
 
         Nothing  -> div_ [] []
     ]
@@ -69,40 +69,40 @@ view model = div_
 
 update :: Action -> Model -> Effect Action Model
 update msg model = case msg of
-  HandleChatRoomsAction (CRS.Selected chatRoom) ->
+  ChatRoomsAction (CRS.Selected chatRoom) ->
     (model { chatRoomModel = Just (CR.initialModel (participant model) chatRoom)
            }
       )
       <# do
-           return (HandleChatRoomAction CR.GetChatHistory)
+           return (ChatRoomAction CR.GetChatHistory)
 
-  HandleChatRoomsAction (CRS.Deselected) ->
+  ChatRoomsAction (CRS.Deselected) ->
     noEff (model { chatRoomModel = Nothing })
 
-  HandleChatRoomsAction msg_ ->
+  ChatRoomsAction msg_ ->
     let (Effect rm ra) = CRS.update msg_ (chatRoomsModel model)
         newModel       = model { chatRoomsModel = rm }
-        newAction      = fmap (mapSub HandleChatRoomsAction) ra
+        newAction      = fmap (mapSub ChatRoomsAction) ra
     in  Effect newModel newAction
 
-  HandleChatRoomAction msg_ -> case (chatRoomModel model) of
+  ChatRoomAction msg_ -> case (chatRoomModel model) of
     Nothing -> noEff model
 
     Just model_ ->
       let (Effect rm ra) = CR.update msg_ model_
           newModel       = model { chatRoomModel = Just rm }
-          newAction      = fmap (mapSub HandleChatRoomAction) ra
+          newAction      = fmap (mapSub ChatRoomAction) ra
       in  Effect newModel newAction
 
   Init ->
     let (Effect rm ra) = CRS.update CRS.GetChatRooms (chatRoomsModel model)
         newModel       = model { chatRoomsModel = rm }
-        newAction      = fmap (mapSub HandleChatRoomsAction) ra
+        newAction      = fmap (mapSub ChatRoomsAction) ra
     in  Effect newModel newAction
 
 
 -- SUBSCRIPTIONS
 
 subscriptions :: [Sub Action]
-subscriptions = fmap (mapSub HandleChatRoomAction) CR.subscriptions
+subscriptions = fmap (mapSub ChatRoomAction) CR.subscriptions
 
