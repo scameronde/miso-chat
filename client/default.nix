@@ -1,5 +1,5 @@
-{ nixpkgsRev ? "129f94fb38787ef866805e0f38e4b5df8050c20c"
-, nixpkgsSha256 ? "0fhcbrbvw9103sz6haafd94gxfcsd06bc03al5qm6nr0j6xvvxij"
+{ nixpkgsRev ? "8e2c3b93bae2d0bcc020f93ed0dcdb7a206eaf52"
+, nixpkgsSha256 ? "1an7zr829vgmvknfiy9alv4m4w07q4l1a6w8qafhj79qx8ca4la0"
 , cabalHashesRev ? "b5aafcfaad89a5d92033e1ab2a70c625dbd99a72"
 , cabalHashesSha256 ? "0sas2wm59c017hbqdin12xc9dyx56wbd3qj55a8a0x7fvq2wdjbd"
 }:
