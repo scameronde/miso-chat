@@ -1,19 +1,29 @@
 { nixpkgsRev ? "fdfe5b028bd4da08f0c8aabf9fb5e143ce96c56f"
 , nixpkgsSha256 ? "0x0p418csdmpdfp6v4gl5ahzqhg115bb3cvrz1rb1jc7n4vxhcc8"
-, cabalHashesRev ? "b894fb11eb8b8fb550ad22fbbac3d782758a9faf"
-, cabalHashesSha256 ? "02pgkxa4rljczfcc7hh622hv215r7xl9a3m2kghf0jlcyhwwdikf"
+, cabalHashesRev ? "b5aafcfaad89a5d92033e1ab2a70c625dbd99a72"
+, cabalHashesSha256 ? "0sas2wm59c017hbqdin12xc9dyx56wbd3qj55a8a0x7fvq2wdjbd"
 }:
 let
   # do not load the version of nixpkgs that the users account points to
   # load the same specific version on all accounts instead
-  nixpkgs = builtins.fetchTarball {
+  # How to get the rev and the sha256:
+  #   - look at https://github.com/NixOS/nixpkgs for a revision that suits you. That is your rev
+  #   - nix-prefetch-url --unpack https://github.com/NixOS/nixpkgs/archive/${rev}.tar.gz
+ nixpkgs = builtins.fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/${nixpkgsRev}.tar.gz";
     sha256 = nixpkgsSha256;
   };
   pkgs = import nixpkgs {};
 
-  # to get the newest version of packages when using the function 'callHackage' we can not use a LTS set
-  # of hackage (which nixpgks is based on). We have to provide a newer mapping provided by the hackage guys. 
+  # sometimes the versions provided by nixpkgs are not the versions we need. In this case we can
+  # use the function `callHackage` which accepts a hackage version number. nixpkgs comes with a list of
+  # hackage version number that map to specific cabal builds.
+  # Because hackage version numbers do not pin an exact cabal build of a package (in case of bugs a newer build 
+  # can be published keeping the version number), this mapping can be outdated. To be sure to use the latest mapping
+  # one can supply nix with a newer mapping. 
+  # How to get the rev and the outputSha256:
+  #   - look at https://github.com/commercialhaskell/all-cabal-hashes in branch 'hackage' for a revision that suits you. That is your rev
+  #   - nix-prefetch-url https://github.com/commercialhaskell/all-cabal-hashes/archive/${rev}.tar.gz
   cabal-hashes = builtins.fetchurl {
     url = "https://github.com/commercialhaskell/all-cabal-hashes/archive/${cabalHashesRev}.tar.gz";
     sha256 = cabalHashesSha256;
