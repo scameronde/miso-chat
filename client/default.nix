@@ -98,7 +98,7 @@ in rec
   # sever shell for working with GHC
   server-shell = ghcPackages.shellFor {
     packages = p: [p.chatclient];
-    buildInputs = [ghcPackages.cabal-plan ghcPackages.brittany];
+    buildInputs = [pkgs.cabal-install ghcPackages.cabal-plan ghcPackages.brittany];
   };
 
   # client build
@@ -107,6 +107,6 @@ in rec
   # client shell for working with GHCJS
   client-shell = ghcjsPackages.shellFor {
     packages = p: [p.chatclient];
-    buildInputs = [ghcPackages.cabal-plan ghcPackages.brittany];
+    buildInputs = [pkgs.cabal-install ghcPackages.cabal-plan ghcPackages.brittany];
   };
 }
