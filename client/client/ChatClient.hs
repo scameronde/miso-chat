@@ -23,6 +23,7 @@ import           Miso                    hiding ( action_
 import qualified Chat                          as C
 import qualified Login                         as L
 import qualified NavBar                        as NB
+import           Util
 
 -- MODELS
 
@@ -71,10 +72,10 @@ update action model = case (action, model) of
       return (ChatAction C.Init)
 
   (LoginAction action_, LoginModel model_) ->
-    mapEff L.update action_ model_ LoginModel LoginAction
+    mapEff L.update action_ model_ LoginAction LoginModel 
 
   (ChatAction action_, ChatModel model_) ->
-    mapEff C.update action_ model_ ChatModel ChatAction
+    mapEff C.update action_ model_ ChatAction ChatModel 
 
   _ -> noEff model
 
@@ -84,15 +85,3 @@ update action model = case (action, model) of
 subscriptions :: [Sub Action]
 subscriptions = fmap (mapSub ChatAction) C.subscriptions
 
-mapEff
-  :: (sa -> sm -> Effect sa sm)
-  -> sa
-  -> sm
-  -> (sm -> m)
-  -> (sa -> a)
-  -> Effect a m
-mapEff updater action model modelWrapper actionWrapper =
-  let (Effect rm ra) = updater action model
-      newModel       = modelWrapper rm
-      newAction      = fmap (mapSub actionWrapper) ra
-  in  Effect newModel newAction
