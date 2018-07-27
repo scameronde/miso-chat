@@ -14,6 +14,7 @@ library
     buildable:      False
   else
     build-depends:  base
+                  , miso
 
   ghc-options:      -Wall -Werror
   ghcjs-options:    -Wall -Werror
@@ -50,6 +51,14 @@ executable server
 executable client
   hs-source-dirs:   client
   main-is:          Client.hs
+  other-modules:    Businesstypes
+                  , Chat
+                  , ChatClient
+                  , ChatRoom
+                  , ChatRooms
+                  , Login
+                  , NavBar
+                  , RestClient
 
   if !impl(ghcjs)
     buildable:      False
@@ -62,6 +71,7 @@ executable client
                   , servant-client-ghcjs
                   , time
                   , text
+                  , lens
 
   ghcjs-options:    -dedupe -Wall -Werror
 
