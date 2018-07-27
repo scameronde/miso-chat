@@ -6,7 +6,6 @@
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
-{-# LANGUAGE TemplateHaskell     #-}
 
 module Chat
   ( Model
@@ -27,19 +26,15 @@ import qualified Businesstypes                 as BT
 import qualified ChatRoom                      as CR
 import qualified ChatRooms                     as CRS
 import           Util
-import           Control.Lens
-
 
 
 -- MODELS
 
 data Model = Model
-    { _participant    :: BT.Participant
-    , _chatRoomModel  :: Maybe CR.Model
-    , _chatRoomsModel :: CRS.Model
+    { participant    :: BT.Participant
+    , chatRoomModel  :: Maybe CR.Model
+    , chatRoomsModel :: CRS.Model
     } deriving (Show, Eq)
-
-makeLenses ''Model
 
 initialModel :: BT.Participant -> Model
 initialModel part = Model part Nothing (CRS.initialModel)
@@ -60,10 +55,10 @@ view :: Model -> View Action
 view model = div_
   [class_ "row"]
   [ div_ [class_ "col-md-6"]
-         [fmap ChatRoomsAction (CRS.view (model ^. chatRoomsModel))]
+         [fmap ChatRoomsAction (CRS.view (chatRoomsModel model))]
   , div_
     [class_ "col-md-6"]
-    [ case (model ^. chatRoomModel) of
+    [ case (chatRoomModel model) of
         Just crm -> fmap ChatRoomAction (CR.view crm)
 
         Nothing  -> div_ [] []
@@ -76,34 +71,34 @@ view model = div_
 update :: Action -> Model -> Effect Action Model
 update msg model = case msg of
   ChatRoomsAction (CRS.Selected chatRoom) ->
-    (let crm = Just (CR.initialModel (model ^. participant) chatRoom)
-     in  (chatRoomModel .~ crm) model
+    (let crm = Just (CR.initialModel (participant model) chatRoom)
+     in  model {chatRoomModel = crm}
       )
       <# do
            return (ChatRoomAction CR.GetChatHistory)
 
-  ChatRoomsAction (CRS.Deselected) -> noEff (chatRoomModel .~ Nothing $ model)
+  ChatRoomsAction (CRS.Deselected) -> noEff (model {chatRoomModel = Nothing} )
 
   ChatRoomsAction msg_ -> mapEff CRS.update
                                  msg_
-                                 (model ^. chatRoomsModel)
+                                 (chatRoomsModel model)
                                  ChatRoomsAction
-                                 (\rm -> model { _chatRoomsModel = rm })
+                                 (\rm -> model {chatRoomsModel = rm})
 
-  ChatRoomAction msg_ -> case (model ^. chatRoomModel) of
+  ChatRoomAction msg_ -> case (chatRoomModel model) of
     Nothing     -> noEff model
 
     Just model_ -> mapEff CR.update
                           msg_
                           model_
                           ChatRoomAction
-                          (\rm -> model { _chatRoomModel = Just rm })
+                          (\rm -> model {chatRoomModel = Just rm})
 
   Init -> mapEff CRS.update
                  CRS.GetChatRooms
-                 (model ^. chatRoomsModel)
+                 (chatRoomsModel model)
                  ChatRoomsAction
-                 (\rm -> model { _chatRoomsModel = rm })
+                 (\rm -> model {chatRoomsModel = rm})
 
 
 -- SUBSCRIPTIONS
