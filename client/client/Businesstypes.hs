@@ -21,9 +21,15 @@ module Businesstypes
 where
 
 import           Data.Aeson
+import           Data.Char
+import           Data.Maybe
+import           Data.List
 import           Data.Time.LocalTime
 import           GHC.Generics
-import           Miso.String
+import           Miso.String             hiding ( toLower
+                                                , toUpper
+                                                , stripPrefix
+                                                )
 
 
 -- BUSINESS TYPES
@@ -33,11 +39,32 @@ instance ToJSON Id
 instance FromJSON Id
 
 data Participant = Participant
-  { pid  :: Id
-  , name :: MisoString
+  { participantId  :: Id
+  , participantName :: MisoString
   } deriving (Show, Eq, Generic)
-instance ToJSON Participant
-instance FromJSON Participant
+instance ToJSON Participant where
+  toJSON = genericToJSON defaultOptions {
+    fieldLabelModifier = dropPrefix "participant"
+  }
+instance FromJSON Participant where
+  parseJSON = genericParseJSON defaultOptions {
+    fieldLabelModifier = addPrefix "participant"
+  }
+
+toLowerFirst :: String -> String
+toLowerFirst []       = []
+toLowerFirst (c : cs) = toLower c : cs
+
+toUpperFirst :: String -> String
+toUpperFirst []       = []
+toUpperFirst (c : cs) = toUpper c : cs
+
+dropPrefix :: String -> String -> String
+dropPrefix prefix fieldName =
+  fromMaybe fieldName (fmap toLowerFirst (stripPrefix prefix fieldName))
+
+addPrefix :: String -> String -> String
+addPrefix prefix attributeName = prefix ++ (toUpperFirst attributeName)
 
 
 data ChatRoom = ChatRoom

@@ -72,10 +72,10 @@ update action model = case (action, model) of
       return (ChatAction C.Init)
 
   (LoginAction action_, LoginModel model_) ->
-    mapEff L.update action_ model_ LoginAction LoginModel 
+    mapEff L.update action_ model_ LoginAction LoginModel
 
   (ChatAction action_, ChatModel model_) ->
-    mapEff C.update action_ model_ ChatAction ChatModel 
+    mapEff C.update action_ model_ ChatAction ChatModel
 
   _ -> noEff model
 

@@ -81,7 +81,7 @@ view model = div_
       [ type_ "text"
       , class_ "form-control"
       , size_ "30"
-      , placeholder_ (append (BT.name (participant model)) ": Enter message")
+      , placeholder_ (append (BT.participantName (participant model)) ": Enter message")
       , value_ (message model)
       , onInput (ChangeField NewMessage)
       ]

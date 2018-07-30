@@ -2,6 +2,8 @@
 , nixpkgsSha256 ? "1an7zr829vgmvknfiy9alv4m4w07q4l1a6w8qafhj79qx8ca4la0"
 , cabalHashesRev ? "b5aafcfaad89a5d92033e1ab2a70c625dbd99a72"
 , cabalHashesSha256 ? "0sas2wm59c017hbqdin12xc9dyx56wbd3qj55a8a0x7fvq2wdjbd"
+, hienixRev ? "e3113da93b479bec3046e67c0123860732335dd9"
+, hienixSha256 ? "05rkzjvzywsg66iafm84xgjlkf27yfbagrdcb8sc9fd59hrzyiqk"
 }:
 let
   # do not load the version of nixpkgs that the users account points to
@@ -62,6 +64,13 @@ let
     };
   });
 
+  # load hie-nix project
+  hienixpkgs = builtins.fetchTarball {
+    url = "https://github.com/domenkozar/hie-nix/archive/${hienixRev}.tar.gz";
+    sha256 = hienixSha256;
+  };
+  hienix = import hienixpkgs {};
+
   # these are all the packages and tools we need for a GHCJS based build
   ghcjsPackages = pkgs.haskell.packages.ghcjs80.override(old: {
     all-cabal-hashes = cabal-hashes;
@@ -107,6 +116,6 @@ in rec
   # client shell for working with GHCJS
   client-shell = ghcjsPackages.shellFor {
     packages = p: [p.chatclient];
-    buildInputs = [pkgs.cabal-install ghcPackages.cabal-plan ghcPackages.brittany];
+    buildInputs = [pkgs.cabal-install ghcPackages.cabal-plan ghcPackages.brittany hienix.hie80];
   };
 }
