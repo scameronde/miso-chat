@@ -9,8 +9,8 @@
 {-# LANGUAGE TypeOperators              #-}
 module Businesstypes.ChatCommand where
 
-import Businesstypes.ChatRegistration
-import Businesstypes.ChatMessage
+import           Businesstypes.ChatRegistration
+import           Businesstypes.ChatMessage
 import           Data.Aeson
 import           GHC.Generics
 

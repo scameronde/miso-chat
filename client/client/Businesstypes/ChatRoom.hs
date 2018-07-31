@@ -9,7 +9,7 @@
 {-# LANGUAGE TypeOperators              #-}
 module Businesstypes.ChatRoom where
 
-import Businesstypes.Id
+import           Businesstypes.Id
 
 import           Data.Aeson
 import           GHC.Generics

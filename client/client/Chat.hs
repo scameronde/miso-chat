@@ -22,7 +22,7 @@ import           Miso                    hiding ( action_
                                                 , set
                                                 )
 
-import qualified Businesstypes.Participant as Participant
+import           Businesstypes.Participant      ( Participant )
 import qualified ChatRoom                      as CR
 import qualified ChatRooms                     as CRS
 import           Util
@@ -31,12 +31,12 @@ import           Util
 -- MODELS
 
 data Model = Model
-    { participant    :: Participant.Participant
+    { participant    :: Participant
     , chatRoomModel  :: Maybe CR.Model
     , chatRoomsModel :: CRS.Model
     } deriving (Show, Eq)
 
-initialModel :: Participant.Participant -> Model
+initialModel :: Participant -> Model
 initialModel part = Model part Nothing (CRS.initialModel)
 
 

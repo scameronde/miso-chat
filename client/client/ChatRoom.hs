@@ -22,12 +22,20 @@ import           Miso                    hiding ( action_
                                                 )
 import           Miso.String
 
-import qualified Businesstypes.Participant as Participant
-import qualified Businesstypes.ChatRoom as ChatRoom
-import qualified Businesstypes.ChatMessage as ChatMessage
-import qualified Businesstypes.ChatMessageLog as ChatMessageLog
-import qualified Businesstypes.ChatRegistration as ChatRegistration
-import qualified Businesstypes.ChatCommand as ChatCommand
+import           Businesstypes.Participant      ( Participant )
+import qualified Businesstypes.Participant     as Participant
+import           Businesstypes.ChatRoom         ( ChatRoom )
+import qualified Businesstypes.ChatRoom        as ChatRoom
+import           Businesstypes.ChatMessage      ( ChatMessage(ChatMessage) )
+import qualified Businesstypes.ChatMessage     as ChatMessage
+import           Businesstypes.ChatMessageLog   ( ChatMessageLog(ChatMessageLog)
+                                                )
+import           Businesstypes.ChatRegistration ( ChatRegistration
+                                                  ( ChatRegistration
+                                                  )
+                                                )
+import           Businesstypes.ChatCommand      ( )
+import qualified Businesstypes.ChatCommand     as ChatCommand
 
 import           RestClient
 
@@ -35,15 +43,15 @@ import           RestClient
 -- MODELS
 
 data Model = Model
-    { participant :: Participant.Participant
-    , chatRoom    :: ChatRoom.ChatRoom
+    { participant :: Participant
+    , chatRoom    :: ChatRoom
     , message     :: MisoString
     , messageLog  :: MisoString
     , errorMsg    :: MisoString
     } deriving (Show, Eq)
 
 
-initialModel :: Participant.Participant -> ChatRoom.ChatRoom -> Model
+initialModel :: Participant -> ChatRoom -> Model
 initialModel participant_ chatRoom_ = Model
   { participant = participant_
   , chatRoom    = chatRoom_
@@ -63,7 +71,7 @@ data Action
     | GetChatHistoryError MisoString
     | ChangeField Field MisoString
     | SendMessage
-    | HandleWebSocket (WebSocket ChatMessage.ChatMessage)
+    | HandleWebSocket (WebSocket ChatMessage)
     | NoOp
     deriving (Show, Eq)
 
@@ -87,7 +95,8 @@ view model = div_
       [ type_ "text"
       , class_ "form-control"
       , size_ "30"
-      , placeholder_ (append (Participant.name (participant model)) ": Enter message")
+      , placeholder_
+        (append (Participant.name (participant model)) ": Enter message")
       , value_ (message model)
       , onInput (ChangeField NewMessage)
       ]
@@ -103,11 +112,13 @@ update msg model = case msg of
   ChangeField NewMessage message_ -> noEff (model { message = message_ })
 
   SendMessage                     -> (model { message = "" }) <# do
-    send (ChatCommand.NewMessage (ChatMessage.ChatMessage (message model)))
+    send (ChatCommand.NewMessage (ChatMessage (message model)))
     return NoOp
 
   HandleWebSocket (WebSocketMessage msg_) ->
-    (model { messageLog = (append (messageLog model) (ChatMessage.message msg_)) })
+    (model { messageLog = (append (messageLog model) (ChatMessage.message msg_))
+           }
+      )
       <# do
            putStrLn "Message received"
            return (NoOp)
@@ -116,12 +127,14 @@ update msg model = case msg of
 
   GetChatHistory    -> model <# do
     send
-      (ChatCommand.Register (ChatRegistration.ChatRegistration (participant model) (chatRoom model)))
+      (ChatCommand.Register
+        (ChatRegistration (participant model) (chatRoom model))
+      )
     putStrLn "Getting History"
     resOrErr <- getChatHistory (ChatRoom.id (chatRoom model))
     case resOrErr of
       Left err -> return (GetChatHistoryError (ms $ show err))
-      Right (ChatMessageLog.ChatMessageLog hist) -> return (GetChatHistorySuccess hist)
+      Right (ChatMessageLog hist) -> return (GetChatHistorySuccess hist)
 
   GetChatHistorySuccess messageLog_ ->
     noEff (model { messageLog = messageLog_ })

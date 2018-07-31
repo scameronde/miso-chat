@@ -21,7 +21,7 @@ import           Miso                    hiding ( action_
                                                 )
 import           Miso.String
 
-import Businesstypes.Participant(Participant)
+import           Businesstypes.Participant      ( Participant )
 import           RestClient
 
 

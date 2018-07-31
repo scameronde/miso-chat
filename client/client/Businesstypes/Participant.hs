@@ -9,7 +9,7 @@
 {-# LANGUAGE TypeOperators              #-}
 module Businesstypes.Participant where
 
-import Businesstypes.Id
+import           Businesstypes.Id
 import           Data.Aeson
 import           GHC.Generics
 import           Miso.String             hiding ( toLower

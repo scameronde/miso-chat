@@ -9,8 +9,8 @@
 {-# LANGUAGE TypeOperators              #-}
 module Businesstypes.ChatRegistration where
 
-import Businesstypes.Participant
-import Businesstypes.ChatRoom
+import           Businesstypes.Participant
+import           Businesstypes.ChatRoom
 import           Data.Aeson
 import           GHC.Generics
 

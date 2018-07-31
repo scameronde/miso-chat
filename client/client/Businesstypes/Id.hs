@@ -7,7 +7,7 @@
 {-# LANGUAGE TypeApplications           #-}
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
-module Businesstypes.Id (Id(..)) where
+module Businesstypes.Id where
 
 import           Data.Aeson
 import           GHC.Generics
