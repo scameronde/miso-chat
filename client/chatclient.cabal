@@ -57,9 +57,7 @@ executable client
                   , Businesstypes.ChatMessageLog
                   , Businesstypes.ChatRegistration
                   , Businesstypes.ChatRoom
-                  , Businesstypes.Message
                   , Businesstypes.Participant
-                  , Businesstypes.Time
                   , Chat
                   , ChatClient
                   , ChatRoom
