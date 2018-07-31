@@ -22,7 +22,7 @@ import           Miso                    hiding ( action_
                                                 , set
                                                 )
 
-import qualified Businesstypes                 as BT
+import qualified Businesstypes.Participant as Participant
 import qualified ChatRoom                      as CR
 import qualified ChatRooms                     as CRS
 import           Util
@@ -31,12 +31,12 @@ import           Util
 -- MODELS
 
 data Model = Model
-    { participant    :: BT.Participant
+    { participant    :: Participant.Participant
     , chatRoomModel  :: Maybe CR.Model
     , chatRoomsModel :: CRS.Model
     } deriving (Show, Eq)
 
-initialModel :: BT.Participant -> Model
+initialModel :: Participant.Participant -> Model
 initialModel part = Model part Nothing (CRS.initialModel)
 
 
@@ -72,18 +72,18 @@ update :: Action -> Model -> Effect Action Model
 update msg model = case msg of
   ChatRoomsAction (CRS.Selected chatRoom) ->
     (let crm = Just (CR.initialModel (participant model) chatRoom)
-     in  model {chatRoomModel = crm}
+     in  model { chatRoomModel = crm }
       )
       <# do
            return (ChatRoomAction CR.GetChatHistory)
 
-  ChatRoomsAction (CRS.Deselected) -> noEff (model {chatRoomModel = Nothing} )
+  ChatRoomsAction (CRS.Deselected) -> noEff (model { chatRoomModel = Nothing })
 
   ChatRoomsAction msg_ -> mapEff CRS.update
                                  msg_
                                  (chatRoomsModel model)
                                  ChatRoomsAction
-                                 (\rm -> model {chatRoomsModel = rm})
+                                 (\rm -> model { chatRoomsModel = rm })
 
   ChatRoomAction msg_ -> case (chatRoomModel model) of
     Nothing     -> noEff model
@@ -92,13 +92,13 @@ update msg model = case msg of
                           msg_
                           model_
                           ChatRoomAction
-                          (\rm -> model {chatRoomModel = Just rm})
+                          (\rm -> model { chatRoomModel = Just rm })
 
   Init -> mapEff CRS.update
                  CRS.GetChatRooms
                  (chatRoomsModel model)
                  ChatRoomsAction
-                 (\rm -> model {chatRoomsModel = rm})
+                 (\rm -> model { chatRoomsModel = rm })
 
 
 -- SUBSCRIPTIONS

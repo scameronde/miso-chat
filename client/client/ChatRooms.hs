@@ -1,9 +1,7 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
 module ChatRooms
@@ -25,11 +23,8 @@ import           Miso                    hiding ( action_
                                                 )
 import           Miso.String
 
-import Businesstypes.Id
---import qualified Businesstypes.Participant as Participant
-import qualified Businesstypes.ChatRoom as ChatRoom
---import qualified Businesstypes.ChatMessage as ChatMessage
---import qualified Businesstypes.ChatRegistration as ChatRegistration
+import           Businesstypes.Id
+import qualified Businesstypes.ChatRoom        as ChatRoom
 
 import           RestClient
 
@@ -128,7 +123,8 @@ viewChatRoomList chatRooms_ selection_ = table_
     []
     (   (\chatRoom_ -> tr_
           [class_ (rowClass chatRoom_ selection_)]
-          [ td_ [onClick (SelectChatRoom (ChatRoom.id chatRoom_))] [text (ChatRoom.title chatRoom_)]
+          [ td_ [onClick (SelectChatRoom (ChatRoom.id chatRoom_))]
+                [text (ChatRoom.title chatRoom_)]
           , td_
             []
             [ button_
@@ -184,7 +180,11 @@ update action model = case action of
     then noEff model
     else model <# do
       resOrErr <- postRoom
-        (ChatRoom.ChatRoom {ChatRoom.id = Id "", ChatRoom.title = (newChatRoomTitle model)})
+        (ChatRoom.ChatRoom
+          { ChatRoom.id    = Id ""
+          , ChatRoom.title = (newChatRoomTitle model)
+          }
+        )
       case resOrErr of
         Left  err -> return (PostChatRoomError (ms $ show err))
         Right _   -> return PostChatRoomSuccess
@@ -274,7 +274,8 @@ selectOrDeselectChatRoom rid_ model_ =
       _             -> deselectChatRoom model_
 
 
-selectFromAvailableChatRoom :: Id -> [ChatRoom.ChatRoom] -> Model -> Effect Action Model
+selectFromAvailableChatRoom
+  :: Id -> [ChatRoom.ChatRoom] -> Model -> Effect Action Model
 selectFromAvailableChatRoom rid_ chatRooms_ model_ =
   case findChatRoom rid_ chatRooms_ of
     Nothing        -> deselectChatRoom model_

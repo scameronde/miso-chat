@@ -16,16 +16,17 @@ module RestClient
 where
 
 import           Data.Proxy
-import           Data.Text                         (Text)
+import           Data.Text                      ( Text )
 import           Miso.String
 import           Servant.API
 import           Servant.Client.Ghcjs
-import           Servant.Client.Internal.XhrClient (runClientMOrigin)
+import           Servant.Client.Internal.XhrClient
+                                                ( runClientMOrigin )
 
-import Businesstypes.ChatRoom as ChatRoom
-import Businesstypes.Id as Id
-import Businesstypes.ChatMessageLog as ChatMessageLog
-import Businesstypes.Participant as Participant
+import           Businesstypes.ChatRoom        as ChatRoom
+import           Businesstypes.Id              as Id
+import           Businesstypes.ChatMessageLog  as ChatMessageLog
+import           Businesstypes.Participant     as Participant
 
 type GetChatHistoryAPI = "chatRoom" :> Capture "id" Int :> Get '[JSON] ChatMessageLog.ChatMessageLog
 type GetRoomsAPI       = "chatRoom" :> Get '[JSON] [ChatRoom.ChatRoom]
@@ -39,7 +40,8 @@ chatServer = ClientEnv (BaseUrl Http "localhost" 4567 "")
 getChatHistoryREST :: Client ClientM GetChatHistoryAPI
 getChatHistoryREST = client (Proxy @GetChatHistoryAPI)
 
-getChatHistory :: Id.Id -> IO (Either ServantError ChatMessageLog.ChatMessageLog)
+getChatHistory
+  :: Id.Id -> IO (Either ServantError ChatMessageLog.ChatMessageLog)
 getChatHistory (Id.Id rid) =
   runClientMOrigin (getChatHistoryREST (read $ unpack rid)) chatServer
 
