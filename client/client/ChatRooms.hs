@@ -25,7 +25,12 @@ import           Miso                    hiding ( action_
                                                 )
 import           Miso.String
 
-import           Businesstypes
+import Businesstypes.Id
+--import qualified Businesstypes.Participant as Participant
+import qualified Businesstypes.ChatRoom as ChatRoom
+--import qualified Businesstypes.ChatMessage as ChatMessage
+--import qualified Businesstypes.ChatRegistration as ChatRegistration
+
 import           RestClient
 
 -- MODELS
@@ -40,7 +45,7 @@ data RemoteRefreshingData e a
 
 
 data Model = Model
-  { chatRooms          :: RemoteRefreshingData MisoString [ChatRoom]
+  { chatRooms          :: RemoteRefreshingData MisoString [ChatRoom.ChatRoom]
   , selectedChatRoomId :: Maybe Id
   , newChatRoomTitle   :: MisoString
   , errorMsg           :: MisoString
@@ -62,7 +67,7 @@ data Field = Title
            deriving (Show, Eq)
 
 data Action
-    = Selected ChatRoom
+    = Selected ChatRoom.ChatRoom
     | Deselected
     | ChangeField Field MisoString
     | SelectChatRoom Id
@@ -74,7 +79,7 @@ data Action
     | PostChatRoomSuccess
     | GetChatRooms
     | GetChatRoomsError MisoString
-    | GetChatRoomsSuccess [ChatRoom]
+    | GetChatRoomsSuccess [ChatRoom.ChatRoom]
     | NoOp
     deriving (Show, Eq)
 
@@ -100,7 +105,7 @@ viewChatRooms model =
         ]
 
 
-fetchState :: Model -> (String, [ChatRoom], Maybe Id)
+fetchState :: Model -> (String, [ChatRoom.ChatRoom], Maybe Id)
 fetchState model = case (chatRooms model) of
   NotAsked   -> ("not asked", [], Nothing)
 
@@ -113,7 +118,7 @@ fetchState model = case (chatRooms model) of
   Failure  e -> ("Error: " ++ (unpack e), [], Nothing)
 
 
-viewChatRoomList :: [ChatRoom] -> Maybe Id -> View Action
+viewChatRoomList :: [ChatRoom.ChatRoom] -> Maybe Id -> View Action
 viewChatRoomList chatRooms_ selection_ = table_
   [class_ "table table-striped table-hover"]
   [ thead_
@@ -123,12 +128,12 @@ viewChatRoomList chatRooms_ selection_ = table_
     []
     (   (\chatRoom_ -> tr_
           [class_ (rowClass chatRoom_ selection_)]
-          [ td_ [onClick (SelectChatRoom (rid chatRoom_))] [text (title chatRoom_)]
+          [ td_ [onClick (SelectChatRoom (ChatRoom.id chatRoom_))] [text (ChatRoom.title chatRoom_)]
           , td_
             []
             [ button_
                 [ class_ "btn btn-danger btn-xs"
-                , onClick (DeleteChatRoom (rid chatRoom_))
+                , onClick (DeleteChatRoom (ChatRoom.id chatRoom_))
                 ]
                 [text "X"]
             ]
@@ -139,9 +144,9 @@ viewChatRoomList chatRooms_ selection_ = table_
   ]
 
 
-rowClass :: ChatRoom -> Maybe Id -> MisoString
+rowClass :: ChatRoom.ChatRoom -> Maybe Id -> MisoString
 rowClass chatRoom_ selection_ =
-  if (selection_ == Just (rid chatRoom_)) then pack "info" else pack ""
+  if (selection_ == Just (ChatRoom.id chatRoom_)) then pack "info" else pack ""
 
 
 viewNewChatRoom :: Model -> View Action
@@ -179,7 +184,7 @@ update action model = case action of
     then noEff model
     else model <# do
       resOrErr <- postRoom
-        (ChatRoom {rid = Id "", title = (newChatRoomTitle model)})
+        (ChatRoom.ChatRoom {ChatRoom.id = Id "", ChatRoom.title = (newChatRoomTitle model)})
       case resOrErr of
         Left  err -> return (PostChatRoomError (ms $ show err))
         Right _   -> return PostChatRoomSuccess
@@ -243,8 +248,8 @@ update action model = case action of
   Deselected            -> noEff model
 
 
-findChatRoom :: Id -> [ChatRoom] -> Maybe ChatRoom
-findChatRoom rid_ crs_ = F.find (\cr -> (rid cr) == rid_) crs_
+findChatRoom :: Id -> [ChatRoom.ChatRoom] -> Maybe ChatRoom.ChatRoom
+findChatRoom rid_ crs_ = F.find (\cr -> (ChatRoom.id cr) == rid_) crs_
 
 
 deselectChatRoom :: Model -> Effect Action Model
@@ -252,9 +257,9 @@ deselectChatRoom model =
   (model { selectedChatRoomId = Nothing }) <# return Deselected
 
 
-selectChatRoom :: ChatRoom -> Model -> Effect Action Model
+selectChatRoom :: ChatRoom.ChatRoom -> Model -> Effect Action Model
 selectChatRoom cr model =
-  (model { selectedChatRoomId = Just (rid cr) }) <# return (Selected cr)
+  (model { selectedChatRoomId = Just (ChatRoom.id cr) }) <# return (Selected cr)
 
 
 selectOrDeselectChatRoom :: Id -> Model -> Effect Action Model
@@ -269,7 +274,7 @@ selectOrDeselectChatRoom rid_ model_ =
       _             -> deselectChatRoom model_
 
 
-selectFromAvailableChatRoom :: Id -> [ChatRoom] -> Model -> Effect Action Model
+selectFromAvailableChatRoom :: Id -> [ChatRoom.ChatRoom] -> Model -> Effect Action Model
 selectFromAvailableChatRoom rid_ chatRooms_ model_ =
   case findChatRoom rid_ chatRooms_ of
     Nothing        -> deselectChatRoom model_
@@ -277,9 +282,9 @@ selectFromAvailableChatRoom rid_ chatRooms_ model_ =
     Just chatRoom_ -> selectChatRoom chatRoom_ model_
 
 
-updateChatRoomList :: [ChatRoom] -> Model -> Effect Action Model
+updateChatRoomList :: [ChatRoom.ChatRoom] -> Model -> Effect Action Model
 updateChatRoomList crs model =
-  let newChatRooms = Success (L.sortOn title crs)
+  let newChatRooms = Success (L.sortOn ChatRoom.title crs)
   in  case (selectedChatRoomId model) of
         Nothing   -> noEff (model { chatRooms = newChatRooms })
 

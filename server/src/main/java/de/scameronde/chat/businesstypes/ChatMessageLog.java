@@ -1,21 +1,21 @@
 package de.scameronde.chat.businesstypes;
 
 public class ChatMessageLog {
-  String chatMessageLog;
+  String messageLog;
 
   public ChatMessageLog() {
 
   }
 
   public ChatMessageLog(String messageLog) {
-    this.chatMessageLog = messageLog;
+    this.messageLog = messageLog;
   }
 
-  public String getChatMessageLog() {
-    return chatMessageLog;
+  public String getMessageLog() {
+    return messageLog;
   }
 
-  public void setChatMessageLog(String messageLog) {
-    this.chatMessageLog = messageLog;
+  public void setMessageLog(String messageLog) {
+    this.messageLog = messageLog;
   }
 }

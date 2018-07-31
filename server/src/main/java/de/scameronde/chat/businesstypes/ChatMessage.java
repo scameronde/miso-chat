@@ -1,22 +1,22 @@
 package de.scameronde.chat.businesstypes;
 
 public class ChatMessage {
-  String chatMessage;
+  String message;
 
   public ChatMessage() {
 
   }
 
   public ChatMessage(String message) {
-    this.chatMessage = message;
+    this.message = message;
   }
 
 
-  public String getChatMessage() {
-    return chatMessage;
+  public String getMessage() {
+    return message;
   }
 
-  public void setChatMessage(String message) {
-    this.chatMessage = message;
+  public void setMessage(String message) {
+    this.message = message;
   }
 }

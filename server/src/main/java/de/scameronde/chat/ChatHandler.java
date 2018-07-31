@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import de.scameronde.chat.businesstypes.ChatCommand;
-import de.scameronde.chat.businesstypes.ChatRegistration;
 import de.scameronde.chat.businesstypes.ChatRoom;
 import de.scameronde.chat.businesstypes.ChatMessage;
 import de.scameronde.chat.businesstypes.Participant;
@@ -53,11 +52,11 @@ public class ChatHandler {
       }
       if (chatCommand.getCommand().equals("message")) {
         System.out.println("Received Message");
-        System.out.println("  ChatMessage: " + chatCommand.getChatMessage().getChatMessage());
+        System.out.println("  ChatMessage: " + chatCommand.getChatMessage().getMessage());
         ChatRoom chatRoom = sessions.get(session).chatRoom;
         Participant participant = sessions.get(session).participant;
 
-        String newMessage = participant.getName() + " > " + chatCommand.getChatMessage().getChatMessage() + "\n";
+        String newMessage = participant.getName() + " > " + chatCommand.getChatMessage().getMessage() + "\n";
         ChatMessage newChatMessage = new ChatMessage(newMessage);
         String newJsonMessage = dataToJson(newChatMessage).get();
         repository.addChatMessage(chatRoom, newMessage, participant);

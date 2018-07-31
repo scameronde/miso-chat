@@ -22,22 +22,28 @@ import           Miso                    hiding ( action_
                                                 )
 import           Miso.String
 
-import qualified Businesstypes                 as BT
+import qualified Businesstypes.Participant as Participant
+import qualified Businesstypes.ChatRoom as ChatRoom
+import qualified Businesstypes.ChatMessage as ChatMessage
+import qualified Businesstypes.ChatMessageLog as ChatMessageLog
+import qualified Businesstypes.ChatRegistration as ChatRegistration
+import qualified Businesstypes.ChatCommand as ChatCommand
+
 import           RestClient
 
 
 -- MODELS
 
 data Model = Model
-    { participant :: BT.Participant
-    , chatRoom    :: BT.ChatRoom
+    { participant :: Participant.Participant
+    , chatRoom    :: ChatRoom.ChatRoom
     , message     :: MisoString
     , messageLog  :: MisoString
     , errorMsg    :: MisoString
     } deriving (Show, Eq)
 
 
-initialModel :: BT.Participant -> BT.ChatRoom -> Model
+initialModel :: Participant.Participant -> ChatRoom.ChatRoom -> Model
 initialModel participant_ chatRoom_ = Model
   { participant = participant_
   , chatRoom    = chatRoom_
@@ -57,7 +63,7 @@ data Action
     | GetChatHistoryError MisoString
     | ChangeField Field MisoString
     | SendMessage
-    | HandleWebSocket (WebSocket BT.ChatMessage)
+    | HandleWebSocket (WebSocket ChatMessage.ChatMessage)
     | NoOp
     deriving (Show, Eq)
 
@@ -67,7 +73,7 @@ data Action
 view :: Model -> View Action
 view model = div_
   [class_ "row"]
-  [ h2_ [] [text (BT.title (chatRoom model))]
+  [ h2_ [] [text (ChatRoom.title (chatRoom model))]
   , textarea_
     [ class_ "col-md-12"
     , rows_ "20"
@@ -81,7 +87,7 @@ view model = div_
       [ type_ "text"
       , class_ "form-control"
       , size_ "30"
-      , placeholder_ (append (BT.participantName (participant model)) ": Enter message")
+      , placeholder_ (append (Participant.name (participant model)) ": Enter message")
       , value_ (message model)
       , onInput (ChangeField NewMessage)
       ]
@@ -97,11 +103,11 @@ update msg model = case msg of
   ChangeField NewMessage message_ -> noEff (model { message = message_ })
 
   SendMessage                     -> (model { message = "" }) <# do
-    send (BT.NewMessage (BT.ChatMessage (message model)))
+    send (ChatCommand.NewMessage (ChatMessage.ChatMessage (message model)))
     return NoOp
 
   HandleWebSocket (WebSocketMessage msg_) ->
-    (model { messageLog = (append (messageLog model) (BT.chatMessage msg_)) })
+    (model { messageLog = (append (messageLog model) (ChatMessage.message msg_)) })
       <# do
            putStrLn "Message received"
            return (NoOp)
@@ -110,12 +116,12 @@ update msg model = case msg of
 
   GetChatHistory    -> model <# do
     send
-      (BT.Register (BT.ChatRegistration (participant model) (chatRoom model)))
+      (ChatCommand.Register (ChatRegistration.ChatRegistration (participant model) (chatRoom model)))
     putStrLn "Getting History"
-    resOrErr <- getChatHistory (BT.rid (chatRoom model))
+    resOrErr <- getChatHistory (ChatRoom.id (chatRoom model))
     case resOrErr of
       Left err -> return (GetChatHistoryError (ms $ show err))
-      Right (BT.ChatMessageLog hist) -> return (GetChatHistorySuccess hist)
+      Right (ChatMessageLog.ChatMessageLog hist) -> return (GetChatHistorySuccess hist)
 
   GetChatHistorySuccess messageLog_ ->
     noEff (model { messageLog = messageLog_ })

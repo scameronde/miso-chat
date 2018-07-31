@@ -51,7 +51,15 @@ executable server
 executable client
   hs-source-dirs:   client
   main-is:          Client.hs
-  other-modules:    Businesstypes
+  other-modules:    Businesstypes.Id
+                  , Businesstypes.ChatCommand
+                  , Businesstypes.ChatMessage
+                  , Businesstypes.ChatMessageLog
+                  , Businesstypes.ChatRegistration
+                  , Businesstypes.ChatRoom
+                  , Businesstypes.Message
+                  , Businesstypes.Participant
+                  , Businesstypes.Time
                   , Chat
                   , ChatClient
                   , ChatRoom

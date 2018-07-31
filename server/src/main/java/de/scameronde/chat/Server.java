@@ -95,10 +95,10 @@ public class Server {
 
   private static Optional<ChatRoom> findChatRoom(String id) {
     System.out.println("Find ChatRoom: " + id);
-    repository.getChatRooms().stream().forEach(room -> System.out.println("  room: " + room.getRid()));
+    repository.getChatRooms().stream().forEach(room -> System.out.println("  room: " + room.getId()));
     return repository.getChatRooms()
                      .stream()
-                     .filter(room -> room.getRid().equals(id))
+                     .filter(room -> room.getId().equals(id))
                      .findFirst();
   }
 

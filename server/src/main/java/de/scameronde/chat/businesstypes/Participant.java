@@ -1,24 +1,24 @@
 package de.scameronde.chat.businesstypes;
 
 public class Participant {
-  String pid;
+  String id;
   String name;
 
   public Participant() {
-    this.pid = "";
+    this.id = "";
   }
 
-  public Participant(String pid, String name) {
-    this.pid = pid;
+  public Participant(String id, String name) {
+    this.id = id;
     this.name = name;
   }
 
-  public String getPid() {
-    return pid;
+  public String getId() {
+    return id;
   }
 
-  public void setPid(String pid) {
-    this.pid = pid;
+  public void setId(String id) {
+    this.id = id;
   }
 
   public String getName() {
@@ -45,11 +45,11 @@ public class Participant {
 
     Participant that = (Participant) o;
 
-    return pid.equals(that.pid);
+    return id.equals(that.id);
   }
 
   @Override
   public int hashCode() {
-    return pid.hashCode();
+    return id.hashCode();
   }
 }

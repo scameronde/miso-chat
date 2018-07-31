@@ -1,15 +1,15 @@
 package de.scameronde.chat.businesstypes;
 
 public class ChatRoom {
-  String rid;
+  String id;
   String title;
 
   public ChatRoom() {
-    this.rid = "";
+    this.id = "";
   }
 
-  public ChatRoom(String rid, String title) {
-    this.rid = rid;
+  public ChatRoom(String id, String title) {
+    this.id = id;
     this.title = title;
   }
 
@@ -21,12 +21,12 @@ public class ChatRoom {
     this.title = title;
   }
 
-  public String getRid() {
-    return rid;
+  public String getId() {
+    return id;
   }
 
-  public void setRid(String rid) {
-    this.rid = rid;
+  public void setId(String id) {
+    this.id = id;
   }
 
   @Override
@@ -40,16 +40,16 @@ public class ChatRoom {
 
     ChatRoom chatRoom = (ChatRoom) o;
 
-    return rid.equals(chatRoom.rid);
+    return id.equals(chatRoom.id);
   }
 
   @Override
   public int hashCode() {
-    return rid.hashCode();
+    return id.hashCode();
   }
 
   @Override
   public String toString() {
-    return "Id: " + rid + ", title: " + title;
+    return "Id: " + id + ", title: " + title;
   }
 }
