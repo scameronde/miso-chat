@@ -24,6 +24,9 @@ import           Miso.String
 import           Businesstypes.Participant      ( Participant )
 import           RestClient
 
+--foreign import javascript unsafe "$(function(){$('#dragMe').zinoDraggable();});" makeDraggable :: IO ()
+foreign import javascript unsafe "$('#dragMe').zinoDraggable()" makeDraggable :: IO ()
+
 
 -- MODELS
 
@@ -46,6 +49,9 @@ data Action
   | GetParticipant
   | ChangeField Field MisoString
   | ShowError MisoString
+  | DragCreated
+  | DragDestroyed
+  | NoOp
   deriving (Show, Eq)
 
 
@@ -55,20 +61,24 @@ view :: Model -> View Action
 view model = div_
   []
   [ viewErrorMsg model "Wrong Credentials!"
-  , form_
-    [onSubmit GetParticipant]
-    [ div_
-      [class_ "form-group"]
-      [ label_ [for_ "nameInput"] [text "Your name"]
-      , input_
-        [ id_ "nameInput"
-        , type_ "text"
-        , class_ "form-control"
-        , onInput (ChangeField Name)
+  , div_
+    [ id_ "dragMe", onCreated DragCreated, onDestroyed DragDestroyed ]
+    [ h3_ [] [ text "Hi!" ]
+    , form_
+      [onSubmit GetParticipant]
+      [ div_
+        [class_ "form-group"]
+        [ label_ [for_ "nameInput"] [text "Your name buddy"]
+        , input_
+          [ id_ "nameInput"
+          , type_ "text"
+          , class_ "form-control"
+          , onInput (ChangeField Name)
+          ]
         ]
+      , button_ [class_ "btn btn-primary", disabled_ (noName model)] [text "OK"]
       ]
-    , button_ [class_ "btn btn-primary", disabled_ (noName model)] [text "OK"]
-    ]
+    ]  
   ]
 
 
@@ -100,6 +110,14 @@ update action model = case action of
 
   -- for external communication
   Login _ -> noEff model
+
+  -- for View creation/destruction
+  DragCreated -> model <# do 
+                            putStrLn "Drag created"
+                            makeDraggable
+                            return NoOp
+  DragDestroyed -> model <# do putStrLn "Drag destroyed"; return NoOp
+  NoOp -> noEff model
 
 
 clearErrorIfEmpty :: MisoString -> MisoString -> MisoString
