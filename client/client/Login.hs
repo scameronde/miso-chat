@@ -116,7 +116,9 @@ update action model = case action of
                             putStrLn "Drag created"
                             makeDraggable
                             return NoOp
-  DragDestroyed -> model <# do putStrLn "Drag destroyed"; return NoOp
+  DragDestroyed -> model <# do 
+                              putStrLn "Drag destroyed"
+                              return NoOp
   NoOp -> noEff model
 
 
