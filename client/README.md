@@ -14,7 +14,15 @@ First install Nix:
 curl https://nixos.org/nix/install | sh
 ```
 
-then run the following command. Depending on the state of the global nix caches this can take a very long time.
+If you get an error like `error: cloning builder process: Operation not permitted` you have to execute
+
+```shell
+sudo sysctl kernel.unprivileged_userns_clone=1
+```
+
+and repeat the curl command.
+
+If Nix has successfully been installed, run the following command. Depending on the state of the global nix caches this can take a very long time.
 
 ```shell
 nix-build
