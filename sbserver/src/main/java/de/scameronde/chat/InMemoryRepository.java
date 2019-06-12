@@ -14,11 +14,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class InMemoryRepository implements Repository {
-  static Integer idcounter = 100;
+  private static Integer idcounter = 100;
 
-  List<Participant> participants = new ArrayList<>();
-  List<ChatRoom> chatRooms = new ArrayList<>();
-  Map<ChatRoom, String> logs = new HashMap<>();
+  private List<Participant> participants = new ArrayList<>();
+  private List<ChatRoom> chatRooms = new ArrayList<>();
+  private Map<ChatRoom, String> logs = new HashMap<>();
 
   public InMemoryRepository() {
     ChatRoom chatRoom1 = new ChatRoom("1", "Room 1");
