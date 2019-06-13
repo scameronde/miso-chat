@@ -13,7 +13,8 @@ function setConnected(connected) {
 }
 
 function connect() {
-    var socket = new SockJS('http://localhost:4567/chat-websocket');
+//    var socket = new SockJS('http://localhost:4567/chat-websocket');
+    var socket = new WebSocket('ws://localhost:4567/chat-websocket', ['v12.stomp']);
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function (frame) {
         setConnected(true);
