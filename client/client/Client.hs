@@ -1,6 +1,7 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators #-}
+{- |
+Module      :  Main
+Description :  The interface between Miso and IO ()
+-}
 module Main
   ( main
   )
@@ -11,7 +12,7 @@ import           Miso
 import qualified ChatClient
 
 main :: IO ()
-main = do
+main = 
   startApp App
     { model         = ChatClient.initialModel
     , view          = ChatClient.view
@@ -21,4 +22,3 @@ main = do
     , subs          = ChatClient.subscriptions
     , mountPoint    = Nothing
     }
-

@@ -6,10 +6,16 @@
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
+
+{- |
+Module      :  Login
+Description :  A poor man's login.
+
+This module returns with the loged in 'Participant' as payload of the 'Login' action.
+-}
 module Login
   ( Model
   , Action(Login)
-  , Field
   , Login.view
   , Login.update
   , Login.initialModel
@@ -73,24 +79,24 @@ view model = div_
 
 
 viewErrorMsg :: Model -> MisoString -> View Action
-viewErrorMsg model message = if (noError model)
-  then div_ [] []
-  else div_ [class_ "alert alert-danger"] [text message]
+viewErrorMsg model message = 
+  if noError model
+    then div_ [] []
+    else div_ [class_ "alert alert-danger"] [text message]
 
 
 -- UPDATE
 
 update :: Action -> Model -> Effect Action Model
-update action model = case action of
-  ChangeField Name name -> noEff
-    (model { loginName  = name
-           , loginError = clearErrorIfEmpty name (loginError model)
-           }
-    )
 
-  ShowError error_ -> noEff (model { loginError = error_ })
+update (ChangeField Name name) model = 
+  noEff model { loginName = name, loginError = clearErrorIfEmpty name (loginError model) }
 
-  GetParticipant   -> if (loginName model == "")
+update (ShowError err) model = 
+  noEff (model { loginError = err })
+
+update GetParticipant model =
+  if loginName model == ""
     then noEff model
     else model <# do
       resOrErr <- login (loginName model)
@@ -98,20 +104,18 @@ update action model = case action of
         Left  err -> return (ShowError (ms (show err)))
         Right res -> return (Login res)
 
-  -- for external communication
-  Login _ -> noEff model
-
-
-clearErrorIfEmpty :: MisoString -> MisoString -> MisoString
-clearErrorIfEmpty name error_ = if (name == "") then "" else error_
-
+update (Login _) model =
+  noEff model
+       
 
 -- UTILS
 
+clearErrorIfEmpty :: MisoString -> MisoString -> MisoString
+clearErrorIfEmpty name err = if name == "" then "" else err
+
 noError :: Model -> Bool
-noError model = (loginError model) == ""
+noError model = loginError model == ""
 
 
 noName :: Model -> Bool
-noName model = (loginName model) == ""
-
+noName model = loginName model == ""

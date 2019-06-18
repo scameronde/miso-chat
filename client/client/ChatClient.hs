@@ -6,6 +6,13 @@
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
+
+{- |
+Module      :  ChatClient
+Description :  The main Miso module. From here everything starts.
+
+This module switches between Login and the Chat.
+-}
 module ChatClient
   ( Model
   , Action(NoOp)
@@ -19,11 +26,13 @@ where
 import           Miso                    hiding ( action_
                                                 , model
                                                 )
+import           Data.Bifunctor
 
+-- import Module (Module)
 import qualified Chat                          as C
 import qualified Login                         as L
 import qualified NavBar                        as NB
-import           Util
+
 
 -- MODELS
 
@@ -48,13 +57,6 @@ data Action
 
 -- VIEWS
 
-viewMainArea :: Model -> View Action
-viewMainArea model = case model of
-  LoginModel model_ -> fmap LoginAction (L.view model_)
-
-  ChatModel  model_ -> fmap ChatAction (C.view model_)
-
-
 view :: Model -> View Action
 view model = div_
   []
@@ -63,21 +65,28 @@ view model = div_
   ]
 
 
+viewMainArea :: Model -> View Action
+
+viewMainArea (LoginModel lmodel) = fmap LoginAction (L.view lmodel)
+
+viewMainArea (ChatModel cmodel) = fmap ChatAction (C.view cmodel)
+
+
 -- UPDATE
 
 update :: Action -> Model -> Effect Action Model
-update action model = case (action, model) of
-  (LoginAction (L.Login participant), LoginModel _) ->
-    (ChatModel (C.initialModel participant)) <# do
-      return (ChatAction C.Init)
 
-  (LoginAction action_, LoginModel model_) ->
-    mapEff L.update action_ model_ LoginAction LoginModel
+update (LoginAction (L.Login participant)) (LoginModel _) =
+  ChatModel (C.initialModel participant) <# return (ChatAction C.Init)
 
-  (ChatAction action_, ChatModel model_) ->
-    mapEff C.update action_ model_ ChatAction ChatModel
+update (LoginAction laction) (LoginModel lmodel) =
+  bimap LoginAction LoginModel (L.update laction lmodel)
 
-  _ -> noEff model
+update (ChatAction caction) (ChatModel cmodel) =
+  bimap ChatAction ChatModel (C.update caction cmodel)
+
+update _ model =
+  noEff model
 
 
 -- SUBSCRIPTIONS

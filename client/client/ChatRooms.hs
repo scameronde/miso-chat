@@ -102,7 +102,7 @@ viewChatRooms model =
 
 
 fetchState :: Model -> (String, [ChatRoom], Maybe Id)
-fetchState model = case (chatRooms model) of
+fetchState model = case chatRooms model of
   NotAsked   -> ("not asked", [], Nothing)
 
   Loading    -> ("loading ...", [], Nothing)
@@ -111,7 +111,7 @@ fetchState model = case (chatRooms model) of
 
   Success  a -> ("OK", a, selectedChatRoomId model)
 
-  Failure  e -> ("Error: " ++ (unpack e), [], Nothing)
+  Failure  e -> ("Error: " ++ unpack e, [], Nothing)
 
 
 viewChatRoomList :: [ChatRoom] -> Maybe Id -> View Action
@@ -143,7 +143,7 @@ viewChatRoomList chatRooms_ selection_ = table_
 
 rowClass :: ChatRoom -> Maybe Id -> MisoString
 rowClass chatRoom_ selection_ =
-  if (selection_ == Just (ChatRoom.id chatRoom_)) then pack "info" else pack ""
+  if selection_ == Just (ChatRoom.id chatRoom_) then pack "info" else pack ""
 
 
 viewNewChatRoom :: Model -> View Action
@@ -161,7 +161,7 @@ viewNewChatRoom model = form_
       ]
     ]
   , button_
-    [class_ "btn btn-primary", disabled_ ((newChatRoomTitle model) == "")]
+    [class_ "btn btn-primary", disabled_ (newChatRoomTitle model == "")]
     [text "Create"]
   ]
 
@@ -177,13 +177,13 @@ update action model = case action of
   ChangeField Title title_ -> noEff (model { newChatRoomTitle = title_ })
 
   -- add a new chat room
-  PostChatRoom             -> if (newChatRoomTitle model == "")
+  PostChatRoom             -> if newChatRoomTitle model == ""
     then noEff model
     else model <# do
       resOrErr <- postRoom
         (ChatRoom
           { ChatRoom.id    = Id ""
-          , ChatRoom.title = (newChatRoomTitle model)
+          , ChatRoom.title = newChatRoomTitle model
           }
         )
       case resOrErr of
@@ -201,7 +201,7 @@ update action model = case action of
 
   -- get available chat rooms
   GetChatRooms ->
-    let newChatRooms = case (chatRooms model) of
+    let newChatRooms = case chatRooms model of
           Success  a -> Updating a
           Updating a -> Updating a
           _          -> Loading
@@ -250,7 +250,7 @@ update action model = case action of
 
 
 findChatRoom :: Id -> [ChatRoom] -> Maybe ChatRoom
-findChatRoom rid_ crs_ = F.find (\cr -> (ChatRoom.id cr) == rid_) crs_
+findChatRoom rid_ crs_ = F.find (\cr -> ChatRoom.id cr == rid_) crs_
 
 
 deselectChatRoom :: Model -> Effect Action Model
@@ -265,9 +265,9 @@ selectChatRoom cr model =
 
 selectOrDeselectChatRoom :: Id -> Model -> Effect Action Model
 selectOrDeselectChatRoom rid_ model_ =
-  if (selectedChatRoomId model_ == Just rid_)
+  if selectedChatRoomId model_ == Just rid_
     then deselectChatRoom model_
-    else case (chatRooms model_) of
+    else case chatRooms model_ of
       Updating crs_ -> selectFromAvailableChatRoom rid_ crs_ model_
 
       Success  crs_ -> selectFromAvailableChatRoom rid_ crs_ model_
@@ -286,10 +286,10 @@ selectFromAvailableChatRoom rid_ chatRooms_ model_ =
 updateChatRoomList :: [ChatRoom] -> Model -> Effect Action Model
 updateChatRoomList crs model =
   let newChatRooms = Success (L.sortOn ChatRoom.title crs)
-  in  case (selectedChatRoomId model) of
+  in  case selectedChatRoomId model of
         Nothing   -> noEff (model { chatRooms = newChatRooms })
 
-        Just rid_ -> case (findChatRoom rid_ crs) of
+        Just rid_ -> case findChatRoom rid_ crs of
           Just _ -> noEff (model { chatRooms = newChatRooms })
 
           Nothing ->
