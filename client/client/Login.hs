@@ -16,9 +16,10 @@ This module returns with the loged in 'Participant' as payload of the 'Login' ac
 module Login
   ( Model
   , Action(Login)
-  , Login.view
-  , Login.update
-  , Login.initialModel
+  , Login.desc
+--  , Login.view
+--  , Login.update
+--  , Login.initialModel
   )
 where
 
@@ -26,9 +27,22 @@ import           Miso                    hiding ( action_
                                                 , model
                                                 )
 import           Miso.String
+import           Module                         ( Module(..) )
 
 import           Businesstypes.Participant      ( Participant )
 import           RestClient
+
+
+-- DESCRIPTION
+
+desc :: Module Model Action
+desc = Module
+  { _model  = Login.initialModel
+  , _action = Login.NoOp
+  , _view   = Login.view
+  , _update = Login.update
+  , _subs   = []
+  }
 
 
 -- MODELS
@@ -52,6 +66,7 @@ data Action
   | GetParticipant
   | ChangeField Field MisoString
   | ShowError MisoString
+  | NoOp
   deriving (Show, Eq)
 
 
@@ -104,7 +119,7 @@ update GetParticipant model =
         Left  err -> return (ShowError (ms (show err)))
         Right res -> return (Login res)
 
-update (Login _) model =
+update _ model =
   noEff model
        
 

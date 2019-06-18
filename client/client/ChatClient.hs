@@ -14,12 +14,7 @@ Description :  The main Miso module. From here everything starts.
 This module switches between Login and the Chat.
 -}
 module ChatClient
-  ( Model
-  , Action(NoOp)
-  , ChatClient.view
-  , ChatClient.update
-  , ChatClient.subscriptions
-  , ChatClient.initialModel
+  ( ChatClient.desc
   )
 where
 
@@ -28,10 +23,22 @@ import           Miso                    hiding ( action_
                                                 )
 import           Data.Bifunctor
 
--- import Module (Module)
+import           Module                         ( Module(..) )
 import qualified Chat                          as C
 import qualified Login                         as L
 import qualified NavBar                        as NB
+
+
+-- DESCRIPTION
+
+desc :: Module Model Action
+desc = Module
+  { _model  = ChatClient.initialModel
+  , _action = ChatClient.NoOp
+  , _view   = ChatClient.view
+  , _update = ChatClient.update
+  , _subs   = ChatClient.subscriptions
+  }
 
 
 -- MODELS
@@ -43,7 +50,7 @@ data Model
 
 
 initialModel :: Model
-initialModel = LoginModel L.initialModel
+initialModel = LoginModel (_model L.desc)
 
 
 -- ACTIONS
@@ -67,9 +74,9 @@ view model = div_
 
 viewMainArea :: Model -> View Action
 
-viewMainArea (LoginModel lmodel) = fmap LoginAction (L.view lmodel)
+viewMainArea (LoginModel lmodel) = fmap LoginAction (_view L.desc lmodel)
 
-viewMainArea (ChatModel cmodel) = fmap ChatAction (C.view cmodel)
+viewMainArea (ChatModel  cmodel) = fmap ChatAction (C.view cmodel)
 
 
 -- UPDATE
@@ -80,13 +87,12 @@ update (LoginAction (L.Login participant)) (LoginModel _) =
   ChatModel (C.initialModel participant) <# return (ChatAction C.Init)
 
 update (LoginAction laction) (LoginModel lmodel) =
-  bimap LoginAction LoginModel (L.update laction lmodel)
+  bimap LoginAction LoginModel (_update L.desc laction lmodel)
 
 update (ChatAction caction) (ChatModel cmodel) =
   bimap ChatAction ChatModel (C.update caction cmodel)
 
-update _ model =
-  noEff model
+update _ model = noEff model
 
 
 -- SUBSCRIPTIONS

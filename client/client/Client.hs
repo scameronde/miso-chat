@@ -8,17 +8,18 @@ module Main
 where
 
 import           Miso
+import           Module                         ( Module(..) )
 
 import qualified ChatClient
 
 main :: IO ()
 main = 
   startApp App
-    { model         = ChatClient.initialModel
-    , view          = ChatClient.view
-    , update        = ChatClient.update
-    , initialAction = ChatClient.NoOp
+    { model         = _model ChatClient.desc
+    , view          = _view ChatClient.desc
+    , update        = _update ChatClient.desc
+    , initialAction = _action ChatClient.desc
     , events        = defaultEvents
-    , subs          = ChatClient.subscriptions
+    , subs          = _subs ChatClient.desc
     , mountPoint    = Nothing
     }
