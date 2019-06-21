@@ -6,6 +6,7 @@
 {-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
 
 {- |
 Module      :  ChatClient
@@ -14,89 +15,94 @@ Description :  The main Miso module. From here everything starts.
 This module switches between Login and the Chat.
 -}
 module ChatClient
-  ( ChatClient.desc
+  ( ChatClient (..)
+  , Config (ChatClientConfig)
   )
 where
 
 import           Miso                    hiding ( action_
                                                 , model
+                                                , view
+                                                , update
                                                 )
 import           Data.Bifunctor
 
 import           Module                         ( Module(..) )
-import qualified Chat                          as C
-import qualified Login                         as L
+import Chat
+import Login
 import qualified NavBar                        as NB
 
 
 -- DESCRIPTION
 
-desc :: Module Model Action
-desc = Module
-  { _model  = ChatClient.initialModel
-  , _action = ChatClient.NoOp
-  , _view   = ChatClient.view
-  , _update = ChatClient.update
-  , _subs   = ChatClient.subscriptions
-  }
+data ChatClient = ChatClient
 
+instance Module ChatClient where
 
--- MODELS
-
-data Model
-    = LoginModel L.Model
-    | ChatModel C.Model
-    deriving (Show, Eq)
-
-
-initialModel :: Model
-initialModel = LoginModel (_model L.desc)
-
-
--- ACTIONS
-
-data Action
-    = LoginAction L.Action
-    | ChatAction C.Action
+  data Action ChatClient
+    = LoginAction (Action Login)
+    | ChatAction (Action Chat)
+    | Init
     | NoOp
     deriving (Show, Eq)
+
+  data Model ChatClient
+    = LoginModel (Model Login)
+    | ChatModel (Model Chat)
+    deriving (Show, Eq)
+
+  data Config ChatClient = ChatClientConfig
+
+  initialModelM = initialModel
+
+  initialActionM = Init
+
+  viewM = view
+
+  updateM = update
+
+  subscriptionsM = subscriptions
+
+
+-- MODEL
+
+initialModel :: Config ChatClient -> Model ChatClient
+initialModel _ = LoginModel (initialModelM LoginConfig)
 
 
 -- VIEWS
 
-view :: Model -> View Action
-view model = div_
-  []
-  [ NB.viewNavBar model
-  , NB.viewMain [div_ [class_ "view-area"] [viewMainArea model]]
-  ]
+view :: Model ChatClient -> View (Action ChatClient)
+view amodel = div_
+    []
+    [ NB.viewNavBar amodel
+    , NB.viewMain [div_ [class_ "view-area"] [viewMainArea amodel]]
+    ]
 
+viewMainArea :: Model ChatClient -> View (Action ChatClient)
 
-viewMainArea :: Model -> View Action
+viewMainArea (LoginModel lmodel) = fmap LoginAction (viewM lmodel)
 
-viewMainArea (LoginModel lmodel) = fmap LoginAction (_view L.desc lmodel)
-
-viewMainArea (ChatModel  cmodel) = fmap ChatAction (C.view cmodel)
+viewMainArea (ChatModel  cmodel) = fmap ChatAction (viewM cmodel)
 
 
 -- UPDATE
 
-update :: Action -> Model -> Effect Action Model
+update :: Action ChatClient -> Model ChatClient -> Effect (Action ChatClient) (Model ChatClient)
 
-update (LoginAction (L.Login participant)) (LoginModel _) =
-  ChatModel (C.initialModel participant) <# return (ChatAction C.Init)
+update (LoginAction (Login.LoginParticipant participant)) (LoginModel _) =
+  bimap ChatAction ChatModel (updateM initialActionM (initialModelM (ChatConfig participant)))
 
 update (LoginAction laction) (LoginModel lmodel) =
-  bimap LoginAction LoginModel (_update L.desc laction lmodel)
+  bimap LoginAction LoginModel (updateM laction lmodel)
 
 update (ChatAction caction) (ChatModel cmodel) =
-  bimap ChatAction ChatModel (C.update caction cmodel)
+  bimap ChatAction ChatModel (updateM caction cmodel)
 
-update _ model = noEff model
+update _ amodel = noEff amodel
 
 
 -- SUBSCRIPTIONS
 
-subscriptions :: [Sub Action]
-subscriptions = fmap (mapSub ChatAction) C.subscriptions
-
+subscriptions :: [Sub (Action ChatClient)]
+subscriptions = fmap (mapSub ChatAction) subscriptionsM ++ fmap (mapSub LoginAction) subscriptionsM
