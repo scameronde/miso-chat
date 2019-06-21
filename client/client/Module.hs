@@ -7,7 +7,7 @@ Module      :  Module
 Description :  Exports the 'Module' data type that describes modules in the chat app
 -}
 module Module
-  ( Module.Module(..) 
+  ( Module.Module(..)
   )
 where
 

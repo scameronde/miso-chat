@@ -10,16 +10,15 @@ where
 import           Miso
 import           Module                         ( Module(..) )
 
-import  ChatClient
+import           ChatClient
 
 main :: IO ()
-main = 
-  startApp App
-    { model         = initialModelM ChatClientConfig
-    , view          = viewM
-    , update        = updateM
-    , initialAction = initialActionM
-    , events        = defaultEvents
-    , subs          = subscriptionsM
-    , mountPoint    = Nothing
-    }
+main = startApp App
+  { model         = initialModelM ChatClientConfig
+  , view          = viewM
+  , update        = updateM
+  , initialAction = initialActionM
+  , events        = defaultEvents
+  , subs          = subscriptionsM
+  , mountPoint    = Nothing
+  }

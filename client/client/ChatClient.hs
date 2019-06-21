@@ -13,8 +13,8 @@ Description :  The main Miso module. From here everything starts.
 This module switches between Login and the Chat.
 -}
 module ChatClient
-  ( ChatClient (..)
-  , Config (ChatClientConfig)
+  ( ChatClient(..)
+  , Config(ChatClientConfig)
   )
 where
 
@@ -26,8 +26,8 @@ import           Miso                    hiding ( action_
 import           Data.Bifunctor
 
 import           Module                         ( Module(..) )
-import Chat
-import Login
+import           Chat
+import           Login
 import qualified NavBar                        as NB
 
 
@@ -72,10 +72,10 @@ initialModel _ = LoginModel (initialModelM LoginConfig)
 
 view :: Model ChatClient -> View (Action ChatClient)
 view amodel = div_
-    []
-    [ NB.viewNavBar amodel
-    , NB.viewMain [div_ [class_ "view-area"] [viewMainArea amodel]]
-    ]
+  []
+  [ NB.viewNavBar amodel
+  , NB.viewMain [div_ [class_ "view-area"] [viewMainArea amodel]]
+  ]
 
 viewMainArea :: Model ChatClient -> View (Action ChatClient)
 
@@ -86,10 +86,15 @@ viewMainArea (ChatModel  cmodel) = fmap ChatAction (viewM cmodel)
 
 -- UPDATE
 
-update :: Action ChatClient -> Model ChatClient -> Effect (Action ChatClient) (Model ChatClient)
+update
+  :: Action ChatClient
+  -> Model ChatClient
+  -> Effect (Action ChatClient) (Model ChatClient)
 
 update (LoginAction (Login.LoginParticipant participant)) (LoginModel _) =
-  bimap ChatAction ChatModel (updateM initialActionM (initialModelM (ChatConfig participant)))
+  bimap ChatAction
+        ChatModel
+        (updateM initialActionM (initialModelM (ChatConfig participant)))
 
 update (LoginAction laction) (LoginModel lmodel) =
   bimap LoginAction LoginModel (updateM laction lmodel)
@@ -103,4 +108,6 @@ update _ amodel = noEff amodel
 -- SUBSCRIPTIONS
 
 subscriptions :: [Sub (Action ChatClient)]
-subscriptions = fmap (mapSub ChatAction) subscriptionsM ++ fmap (mapSub LoginAction) subscriptionsM
+subscriptions =
+  fmap (mapSub ChatAction) subscriptionsM
+    ++ fmap (mapSub LoginAction) subscriptionsM

@@ -70,6 +70,7 @@ executable client
     buildable:      False
   else
     build-depends:  base
+                  , base-compat
                   , chatclient
                   , aeson
                   , miso

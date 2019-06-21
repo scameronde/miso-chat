@@ -13,8 +13,8 @@ Description :  Coordinates the list of chat rooms and the selected chat room.
 This module has to be initialized by the 'Init' action in addition to the 'initialModel'.
 -}
 module Chat
-  ( Chat (..)
-  , Config (ChatConfig)
+  ( Chat(..)
+  , Config(ChatConfig)
   )
 where
 
@@ -64,7 +64,7 @@ instance Module Chat where
 -- MODEL
 
 initialModel :: Config Chat -> Model Chat
-initialModel (ChatConfig part) = Model 
+initialModel (ChatConfig part) = Model
   { participant    = part
   , chatRoomModel  = Nothing
   , chatRoomsModel = CRS.initialModel
@@ -94,24 +94,27 @@ update :: Action Chat -> Model Chat -> Effect (Action Chat) (Model Chat)
 
 update (ChatRoomsAction (CRS.Selected chatRoom)) model =
   let crm = CR.initialModel (participant model) chatRoom
-  in model { chatRoomModel = Just crm} <# return (ChatRoomAction CR.GetChatHistory)
+  in  model { chatRoomModel = Just crm }
+        <# return (ChatRoomAction CR.GetChatHistory)
 
 update (ChatRoomsAction CRS.Deselected) model =
   noEff model { chatRoomModel = Nothing }
 
-update (ChatRoomsAction craction) model =
-  bimap ChatRoomsAction (\rm -> model { chatRoomsModel = rm }) (CRS.update craction (chatRoomsModel model))
+update (ChatRoomsAction craction) model = bimap
+  ChatRoomsAction
+  (\rm -> model { chatRoomsModel = rm })
+  (CRS.update craction (chatRoomsModel model))
 
-update (ChatRoomAction craction) model =
-  case chatRoomModel model of
-    Nothing -> noEff model
-    Just crmodel -> bimap ChatRoomAction (\rm -> model { chatRoomModel = Just rm }) (CR.update craction crmodel)
+update (ChatRoomAction craction) model = case chatRoomModel model of
+  Nothing      -> noEff model
+  Just crmodel -> bimap ChatRoomAction
+                        (\rm -> model { chatRoomModel = Just rm })
+                        (CR.update craction crmodel)
 
-update _ model =
-  noEff model
-    
-    
+update _ model = noEff model
+
+
 -- SUBSCRIPTIONS
 
-subscriptions :: [ Sub (Action Chat) ]
+subscriptions :: [Sub (Action Chat)]
 subscriptions = fmap (mapSub ChatRoomAction) CR.subscriptions

@@ -181,10 +181,7 @@ update action model = case action of
     then noEff model
     else model <# do
       resOrErr <- postRoom
-        (ChatRoom
-          { ChatRoom.id    = Id ""
-          , ChatRoom.title = newChatRoomTitle model
-          }
+        (ChatRoom {ChatRoom.id = Id "", ChatRoom.title = newChatRoomTitle model}
         )
       case resOrErr of
         Left  err -> return (PostChatRoomError (ms $ show err))

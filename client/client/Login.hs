@@ -14,8 +14,8 @@ This module returns with the loged in 'Participant' as payload of the 'Login' ac
 -}
 module Login
   ( Login(..)
-  , Action (LoginParticipant)
-  , Config (LoginConfig)
+  , Action(LoginParticipant)
+  , Config(LoginConfig)
   )
 where
 
@@ -96,34 +96,32 @@ view model = div_
 
 
 viewErrorMsg :: Model Login -> MisoString -> View (Action Login)
-viewErrorMsg model message = 
-  if noError model
-    then div_ [] []
-    else div_ [class_ "alert alert-danger"] [text message]
+viewErrorMsg model message = if noError model
+  then div_ [] []
+  else div_ [class_ "alert alert-danger"] [text message]
 
 
 -- UPDATE
 
 update :: Action Login -> Model Login -> Effect (Action Login) (Model Login)
 
-update (ChangeField Name name) model = 
-  noEff model { loginName = name, loginError = clearErrorIfEmpty name (loginError model) }
+update (ChangeField Name name) model = noEff model
+  { loginName  = name
+  , loginError = clearErrorIfEmpty name (loginError model)
+  }
 
-update (ShowError err) model = 
-  noEff (model { loginError = err })
+update (ShowError err) model = noEff (model { loginError = err })
 
-update GetParticipant model =
-  if loginName model == ""
-    then noEff model
-    else model <# do
-      resOrErr <- login (loginName model)
-      case resOrErr of
-        Left  err -> return (ShowError (ms (show err)))
-        Right res -> return (LoginParticipant res)
+update GetParticipant  model = if loginName model == ""
+  then noEff model
+  else model <# do
+    resOrErr <- login (loginName model)
+    case resOrErr of
+      Left  err -> return (ShowError (ms (show err)))
+      Right res -> return (LoginParticipant res)
 
-update _ model =
-  noEff model
-       
+update _ model = noEff model
+
 
 -- UTILS
 
