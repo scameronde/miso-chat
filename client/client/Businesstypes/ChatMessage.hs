@@ -14,7 +14,7 @@ import           Miso.String             hiding ( toLower
                                                 )
 
 
-data ChatMessage = ChatMessage
+newtype ChatMessage = ChatMessage
   { message :: MisoString
   } deriving (Show, Eq, Generic)
 instance ToJSON ChatMessage
