@@ -31,6 +31,8 @@ import           Businesstypes.Participant      ( Participant )
 import           RestClient
 
 
+-- MODULE DEFINITION
+
 data Login = Login
 
 instance Module Login where
@@ -45,14 +47,14 @@ instance Module Login where
     | GetParticipant
     | ChangeField Field MisoString
     | ShowError MisoString
-    | NoOp
+    | Init
     deriving (Show, Eq)
 
   data Config Login = LoginConfig
 
   initialModelM = initialModel
 
-  initialActionM = NoOp
+  initialActionM = Init
 
   viewM = view
 

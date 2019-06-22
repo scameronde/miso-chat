@@ -10,7 +10,7 @@
 Module      :  ChatClient
 Description :  The main Miso module. From here everything starts.
 
-This module switches between Login and the Chat.
+This module switches between Login and Chat.
 -}
 module ChatClient
   ( ChatClient(..)
@@ -31,7 +31,7 @@ import           Login
 import qualified NavBar                        as NB
 
 
--- DESCRIPTION
+-- MODULE DEFINITION
 
 data ChatClient = ChatClient
 
@@ -41,7 +41,6 @@ instance Module ChatClient where
     = LoginAction (Action Login)
     | ChatAction (Action Chat)
     | Init
-    | NoOp
     deriving (Show, Eq)
 
   data Model ChatClient
@@ -71,17 +70,17 @@ initialModel _ = LoginModel (initialModelM LoginConfig)
 -- VIEWS
 
 view :: Model ChatClient -> View (Action ChatClient)
-view amodel = div_
+view model = div_
   []
-  [ NB.viewNavBar amodel
-  , NB.viewMain [div_ [class_ "view-area"] [viewMainArea amodel]]
+  [ NB.viewNavBar model
+  , NB.viewMain [div_ [class_ "view-area"] [viewMainArea model]]
   ]
 
 viewMainArea :: Model ChatClient -> View (Action ChatClient)
 
-viewMainArea (LoginModel lmodel) = fmap LoginAction (viewM lmodel)
+viewMainArea (LoginModel model) = fmap LoginAction (viewM model)
 
-viewMainArea (ChatModel  cmodel) = fmap ChatAction (viewM cmodel)
+viewMainArea (ChatModel  model) = fmap ChatAction (viewM model)
 
 
 -- UPDATE
@@ -96,13 +95,13 @@ update (LoginAction (Login.LoginParticipant participant)) (LoginModel _) =
         ChatModel
         (updateM initialActionM (initialModelM (ChatConfig participant)))
 
-update (LoginAction laction) (LoginModel lmodel) =
-  bimap LoginAction LoginModel (updateM laction lmodel)
+update (LoginAction action) (LoginModel model) =
+  bimap LoginAction LoginModel (updateM action model)
 
-update (ChatAction caction) (ChatModel cmodel) =
-  bimap ChatAction ChatModel (updateM caction cmodel)
+update (ChatAction action) (ChatModel model) =
+  bimap ChatAction ChatModel (updateM action model)
 
-update _ amodel = noEff amodel
+update _ model = noEff model
 
 
 -- SUBSCRIPTIONS
