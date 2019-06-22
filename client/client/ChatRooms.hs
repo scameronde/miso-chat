@@ -6,9 +6,10 @@
 {-# LANGUAGE TypeOperators       #-}
 
 {- |
-Module      :  Chat
-Description :  Coordinates the list of chat rooms and the selected chat room.
+Module      :  ChatRooms
+Description :  Loads and displays the list of available chat rooms. Allows to add and delete chat rooms.
 
+This module polls the list of available chat rooms from the server periodically.
 -}
 module ChatRooms
   ( ChatRooms(..)

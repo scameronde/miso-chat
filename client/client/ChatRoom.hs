@@ -1,30 +1,33 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE DataKinds           #-}
-{-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE TypeApplications    #-}
 {-# LANGUAGE TypeFamilies        #-}
 {-# LANGUAGE TypeOperators       #-}
+
+{- |
+Module      :  ChatRoom
+Description :  Displays the content of one chat room and allows posting messages.
+
+This module uses web sockets to communicate with the server
+-}
 module ChatRoom
-  ( Model
-  , Action(GetChatHistory, HandleWebSocket)
-  , Field
-  , ChatRoom.view
-  , ChatRoom.update
-  , ChatRoom.subscriptions
-  , ChatRoom.initialModel
+  ( ChatRoomM(..)
+  , Config(ChatRoomConfig)
   )
 where
 
 import           Miso                    hiding ( action_
                                                 , model
+                                                , view
+                                                , update
                                                 )
 import           Miso.String
+import           Module                         ( Module(..) )
 
 import           Businesstypes.Participant      ( Participant )
 import qualified Businesstypes.Participant     as Participant
-import           Businesstypes.ChatRoom         ( ChatRoom )
+import           Businesstypes.ChatRoom         ( ChatRoom ) 
 import qualified Businesstypes.ChatRoom        as ChatRoom
 import           Businesstypes.ChatMessage      ( ChatMessage(ChatMessage) )
 import qualified Businesstypes.ChatMessage     as ChatMessage
@@ -40,9 +43,13 @@ import qualified Businesstypes.ChatCommand     as ChatCommand
 import           RestClient
 
 
--- MODELS
+-- MODULE DESCRIPTION
 
-data Model = Model
+data ChatRoomM = ChatRoomM
+
+instance Module ChatRoomM where
+
+  data Model ChatRoomM = Model
     { participant :: Participant
     , chatRoom    :: ChatRoom
     , message     :: MisoString
@@ -50,9 +57,33 @@ data Model = Model
     , errorMsg    :: MisoString
     } deriving (Show, Eq)
 
+  data Action ChatRoomM
+    = GetChatHistory
+    | GetChatHistorySuccess MisoString
+    | GetChatHistoryError MisoString
+    | ChangeField Field MisoString
+    | SendMessage
+    | HandleWebSocket (WebSocket ChatMessage)
+    | NoOp
+    deriving (Show, Eq)
 
-initialModel :: Participant -> ChatRoom -> Model
-initialModel participant_ chatRoom_ = Model
+  data Config ChatRoomM = ChatRoomConfig Participant ChatRoom
+
+  initialModelM = initialModel
+
+  initialActionM = GetChatHistory
+
+  viewM = view
+
+  updateM = update
+
+  subscriptionsM = subscriptions
+
+
+  -- MODELS
+
+initialModel :: Config ChatRoomM -> Model ChatRoomM
+initialModel (ChatRoomConfig participant_ chatRoom_) = Model
   { participant = participant_
   , chatRoom    = chatRoom_
   , message     = ""
@@ -65,27 +96,17 @@ initialModel participant_ chatRoom_ = Model
 
 data Field = NewMessage deriving (Show, Eq)
 
-data Action
-    = GetChatHistory
-    | GetChatHistorySuccess MisoString
-    | GetChatHistoryError MisoString
-    | ChangeField Field MisoString
-    | SendMessage
-    | HandleWebSocket (WebSocket ChatMessage)
-    | NoOp
-    deriving (Show, Eq)
-
 
 -- VIEWS
 
-view :: Model -> View Action
+view :: Model ChatRoomM -> View (Action ChatRoomM)
 view model = div_
   [class_ "row"]
   [ h2_ [] [text (ChatRoom.title (chatRoom model))]
   , textarea_
     [ class_ "col-md-12"
     , rows_ "20"
-    , style_ $ ("width" =: "100%")
+    , style_ ("width" =: "100%")
     , value_ (messageLog model)
     ]
     []
@@ -107,7 +128,10 @@ view model = div_
 
 -- UPDATE
 
-update :: Action -> Model -> Effect Action Model
+update
+  :: Action ChatRoomM
+  -> Model ChatRoomM
+  -> Effect (Action ChatRoomM) (Model ChatRoomM)
 update msg model = case msg of
   ChangeField NewMessage message_ -> noEff (model { message = message_ })
 
@@ -116,12 +140,11 @@ update msg model = case msg of
     return NoOp
 
   HandleWebSocket (WebSocketMessage msg_) ->
-    (model { messageLog = (append (messageLog model) (ChatMessage.message msg_))
-           }
+    (model { messageLog = append (messageLog model) (ChatMessage.message msg_) }
       )
       <# do
            putStrLn "Message received"
-           return (NoOp)
+           return NoOp
 
   HandleWebSocket _ -> noEff model
 
@@ -146,7 +169,7 @@ update msg model = case msg of
 
 -- SUBSCRIPTIONS
 
-subscriptions :: [Sub Action]
+subscriptions :: [Sub (Action ChatRoomM)]
 subscriptions =
   [websocketSub (URL "ws://localhost:4567/chat") (Protocols []) HandleWebSocket]
 

@@ -27,7 +27,7 @@ import           Data.Bifunctor
 
 import           Module                         ( Module(..) )
 import           Businesstypes.Participant      ( Participant )
-import qualified ChatRoom                      as CR
+import           ChatRoom
 import           ChatRooms
 
 
@@ -39,13 +39,13 @@ instance Module Chat where
 
   data Model Chat = Model
     { participant    :: Participant
-    , chatRoomModel  :: Maybe CR.Model
+    , chatRoomModel  :: Maybe (Model ChatRoomM)
     , chatRoomsModel :: Model ChatRooms
     } deriving (Show, Eq)
 
   data Action Chat
       = ChatRoomsAction (Action ChatRooms)
-      | ChatRoomAction CR.Action
+      | ChatRoomAction (Action ChatRoomM)
       | Init
       deriving (Show, Eq)
 
@@ -82,7 +82,7 @@ view model = div_
   , div_
     [class_ "col-md-6"]
     [ case chatRoomModel model of
-        Just crm -> fmap ChatRoomAction (CR.view crm)
+        Just crm -> fmap ChatRoomAction (viewM crm)
 
         Nothing  -> div_ [] []
     ]
@@ -94,9 +94,9 @@ view model = div_
 update :: Action Chat -> Model Chat -> Effect (Action Chat) (Model Chat)
 
 update (ChatRoomsAction (ChatRooms.Selected chatRoom)) model =
-  let crm = CR.initialModel (participant model) chatRoom
+  let crm = initialModelM (ChatRoomConfig (participant model) chatRoom)
   in  model { chatRoomModel = Just crm }
-        <# return (ChatRoomAction CR.GetChatHistory)
+        <# return (ChatRoomAction initialActionM)
 
 update (ChatRoomsAction ChatRooms.Deselected) model =
   noEff model { chatRoomModel = Nothing }
@@ -110,7 +110,7 @@ update (ChatRoomAction craction) model = case chatRoomModel model of
   Nothing      -> noEff model
   Just crmodel -> bimap ChatRoomAction
                         (\rm -> model { chatRoomModel = Just rm })
-                        (CR.update craction crmodel)
+                        (updateM craction crmodel)
 
 update _ model = noEff model
 
@@ -118,4 +118,6 @@ update _ model = noEff model
 -- SUBSCRIPTIONS
 
 subscriptions :: [Sub (Action Chat)]
-subscriptions = fmap (mapSub ChatRoomAction) CR.subscriptions
+subscriptions =
+  fmap (mapSub ChatRoomsAction) subscriptionsM
+    ++ fmap (mapSub ChatRoomAction) subscriptionsM
