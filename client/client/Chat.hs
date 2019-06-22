@@ -93,6 +93,10 @@ view model = div_
 
 update :: Action Chat -> Model Chat -> Effect (Action Chat) (Model Chat)
 
+update Init model =
+  bimap ChatRoomsAction (\rm -> model { chatRoomsModel = rm }) 
+    (updateM initialActionM (initialModelM ChatRoomsConfig))
+
 update (ChatRoomsAction (ChatRooms.Selected chatRoom)) model =
   let crm = initialModelM (ChatRoomConfig (participant model) chatRoom)
   in  model { chatRoomModel = Just crm }
@@ -111,8 +115,6 @@ update (ChatRoomAction craction) model = case chatRoomModel model of
   Just crmodel -> bimap ChatRoomAction
                         (\rm -> model { chatRoomModel = Just rm })
                         (updateM craction crmodel)
-
-update _ model = noEff model
 
 
 -- SUBSCRIPTIONS
